@@ -252,6 +252,8 @@ async function meal(req,res)
    let date=new Date().getDate();
    let hour=new Date().getHours();
    let minute=new Date().getMinutes();
+   console.log(hours);
+   console.log(minute);
     if(hour>=0 && hour<=8)
     {
        date=date+"";
