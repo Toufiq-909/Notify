@@ -8,12 +8,13 @@ const upload=mutler({
    dest:"temp/"
 })
 dotenv.config();
-const { setToken, Send,File } = require("./Handler");
+const { Add,File,Plan,meal } = require("./Handler");
 app.use(cors());
 app.use(exp.json());
-app.post("/settoken",setToken);
-app.post("/notification",Send);
+app.post("/user",Add)
 app.post("/upload",upload.single("file"),File)
+app.post("/plan",Plan)
+app.get("/meal",meal)
 a=async ()=>{
     try{
 await mon.connect(process.env.mon);

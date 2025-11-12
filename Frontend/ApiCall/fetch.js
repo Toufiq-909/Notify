@@ -1,7 +1,7 @@
 import {initializeApp} from "firebase/app";
 import {getMessaging,getToken} from "firebase/messaging";
 
-export async function Check()
+export async function Check(meal)
 {
      if('serviceWorker' in navigator)
     {
@@ -31,13 +31,14 @@ const firebaseConfig = {
                     {
                         console.log(ct)
                         
-                        let res=await fetch("http://localhost:3000/notification",{
+                        let res=await fetch("http://localhost:3000/user",{
                             method:"POST",
                             headers:{
                                 "Content-Type":"application/json"
                             },
                             body:JSON.stringify({
-                                token:ct
+                                token:ct,
+                                meal:meal
                             })
                         })
 
