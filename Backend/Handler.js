@@ -179,7 +179,7 @@ cron.schedule("25 17 * * *",async ()=>{
 
   
 })
-cron.schedule("1 22 * * *",async ()=>{
+cron.schedule("5 22 * * *",async ()=>{
    console.log("Running 4");
    let date=new Date().getDate();
     date=date+"";
