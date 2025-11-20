@@ -38,9 +38,9 @@ export default App;
   return (
     <div className="m-2  border-4 border-neutral-100 font-[geist_mono] md:w-[40%]" >
       
-      <p className={" text-2xl font-semibold"}>Snacks</p>
+      <p className={" text-2xl font-semibold"}>{menu}</p>
 
-<p className={"text-md"}>Aloo Samosa 1 Big pcs, Sauce, Ginger Tea, Coffee</p>
+<p className={"text-md"}>{meal}</p>
     </div>
   )
  }
