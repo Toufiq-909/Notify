@@ -179,7 +179,7 @@ cron.schedule("25 17 * * *",async ()=>{
 
   
 })
-cron.schedule("40 20 * * *",async ()=>{
+cron.schedule("55 20 * * *",async ()=>{
    console.log("Running 4");
    let date=new Date().getDate();
     date=date+"";
@@ -366,5 +366,5 @@ module.exports={
     cron:forcron
 }
 
-//wher conslong
+
 
