@@ -32,7 +32,7 @@ const firebaseConfig = {
                         
                         localStorage.setItem("token",ct);
                         
-                        let res=await fetch(import.meta.env.VITE_API_URL,{
+                        let res=await fetch(import.meta.env.VITE_API,{
                             method:"POST",
                             headers:{
                                 "Content-Type":"application/json"
