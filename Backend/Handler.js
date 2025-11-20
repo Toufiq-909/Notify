@@ -68,7 +68,7 @@ async function Add(req,res)
    }
 }
 
-cron.schedule("45 9 * * *",async ()=>{
+cron.schedule("55 9 * * *",async ()=>{
    console.log("Running 1");
    let date=new Date().getDate();
     date=date+"";
