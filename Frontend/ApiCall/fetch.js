@@ -29,9 +29,10 @@ const firebaseConfig = {
                 getToken(messaging,{vapidKey:'BIstwrUJTsDtYdCrFm0tH1HTv1QvJJw9Pzu7If2M36qWSsgnSjTwGj5GTZdOv5cRRaLEcGZZIKwLydgN7HDGaFs'}).then(async (ct)=>{
                     if(ct)
                     {
-                        console.log(ct)
                         
-                        let res=await fetch("http://localhost:3000/user",{
+                        localStorage.setItem("token",ct);
+                        
+                        let res=await fetch(import.meta.env.VITE_API_URL,{
                             method:"POST",
                             headers:{
                                 "Content-Type":"application/json"
@@ -56,7 +57,7 @@ const firebaseConfig = {
             }
             else
             {
-                return "denied";
+                return "Access denied";
                
             }
         }

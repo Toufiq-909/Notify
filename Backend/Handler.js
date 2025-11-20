@@ -68,7 +68,7 @@ async function Add(req,res)
    }
 }
 
-cron.schedule("55 9 * * *",async ()=>{
+cron.schedule("25 7 * * *",async ()=>{
    console.log("Running 1");
    let date=new Date().getDate();
     date=date+"";
@@ -217,40 +217,7 @@ cron.schedule("25 19 * * *",async ()=>{
   
 })
    
-async function plan(req,res)
-{ 
-    let date=new Date().getDate();
-    date=date+"";
-    if(date.length==1)
-    {
-      date="0"+date;
-    }
-   let result=await mess.findOne({
-      date:date
-   });
-   let result2=await user.find({
-      meal:"breakfast"
 
-   })
-   try
-   {
-    const message = {
-    notification: {
-    title: "Rise and dine! 🍳 Your breakfast awaits 😋",
-    body: result.breakfast
-  },
-  token: req.body.token
-  };
-  let resp=await admin.messaging().send(message);
-  console.log(resp);
-  res.sendStatus(200);
-   }
-   catch(e)
-   {
-    console.log(e);
-    res.sendStatus(500);
-   }
-}
 async function meal(req,res)
 {
    let date=new Date().getDate();
@@ -271,7 +238,8 @@ async function meal(req,res)
       date:date
    });
     return res.status(200).json({
-      menu:result.breakfast
+      menu:result.breakfast,
+      meal:"Breakfast"
     })
   
     }
@@ -297,7 +265,8 @@ async function meal(req,res)
       date:date
    });
     return res.status(200).json({
-      menu:result.lunch
+      menu:result.lunch,
+      meal:"Lunch"
     })
   
     }
@@ -321,7 +290,8 @@ async function meal(req,res)
       date:date
    });
     return res.status(200).json({
-      menu:result.snacks
+      menu:result.snacks,
+      meal:"Snacks"
     })
   
     }
@@ -345,7 +315,9 @@ async function meal(req,res)
       date:date
    });
     return res.status(200).json({
-      menu:result.dinner
+      menu:result.dinner,
+      meal:"Dinner"
+
     })
   
     }
@@ -368,7 +340,8 @@ async function meal(req,res)
       date:date
    });
     return res.status(200).json({
-      menu:result.breakfast
+      menu:result.breakfast,
+      meal:"Upcoming"
     })
   
     }
@@ -381,11 +354,16 @@ async function meal(req,res)
    
 
 }
+async function forcron(req,res)
+{
+   console.log("I'm running");
+   res.sendStatus(200);
+}
 module.exports={
     Add:Add,
     File:File,
-    Plan:plan,
-    meal:meal
+    meal:meal,
+    cron:forcron
 }
 
 

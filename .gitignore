@@ -27,3 +27,4 @@ dist-ssr
 temp
 notify-f9714-firebase-adminsdk-fbsvc-2f0c59ae65.json
 *.env
+*.env.production
