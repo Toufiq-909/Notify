@@ -68,7 +68,8 @@ async function Add(req,res)
    }
 }
 
-cron.schedule("25 7 * * *",async ()=>{
+cron.schedule("9 42 * * *",async ()=>{
+   console.log("Running 1");
    let date=new Date().getDate();
     date=date+"";
     if(date.length==1)
@@ -105,6 +106,7 @@ cron.schedule("25 7 * * *",async ()=>{
   
 })
 cron.schedule("25 12 * * *",async ()=>{
+   console.log("Running 2");
    let date=new Date().getDate();
     date=date+"";
     if(date.length==1)
@@ -141,6 +143,7 @@ cron.schedule("25 12 * * *",async ()=>{
   
 })
 cron.schedule("25 17 * * *",async ()=>{
+   console.log("Running 3");
    let date=new Date().getDate();
     date=date+"";
     if(date.length==1)
@@ -177,6 +180,7 @@ cron.schedule("25 17 * * *",async ()=>{
   
 })
 cron.schedule("25 19 * * *",async ()=>{
+   console.log("Running 4");
    let date=new Date().getDate();
     date=date+"";
     if(date.length==1)
