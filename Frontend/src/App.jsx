@@ -28,7 +28,7 @@ export default App;
   let [meal,setmeal]=useState("");
   useEffect(()=>{
     let call=async ()=>{
-      let res=await fetch("http://localhost:3000/meal");
+      let res=await fetch(import.meta.env.VITE_API1);
       let result=await res.json();
       setmenu(result.meal);
       setmeal(result.menu);
