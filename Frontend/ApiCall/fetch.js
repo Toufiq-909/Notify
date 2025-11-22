@@ -42,6 +42,7 @@ const firebaseConfig = {
                                 meal:meal
                             })
                         })
+                         window.location.reload();
 
                     }
                     else

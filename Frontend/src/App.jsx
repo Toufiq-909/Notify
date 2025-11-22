@@ -32,30 +32,42 @@ export default App;
       let result=await res.json();
       setmenu(result.meal);
       setmeal(result.menu);
+     
     }
     call();
   },[])
   return (
+    
+
     <div className="m-2  border-4 border-neutral-100 font-[geist_mono] md:w-[40%]" >
+      
+      {
+        meal==="" &&  <p className={"skeleton skeleton-text"}>Please wait while we load your menu.</p>
+      }
       
       <p className={" text-2xl font-semibold"}>{menu}</p>
 
 <p className={"text-md"}>{meal}</p>
     </div>
+  
+  
   )
+    
  }
  function Button()
  {
+  let [status,setstatus]=useState("");
   let [breakfast,setbreakfast]=useState(false);
   let [lunch,setlunch]=useState(false);
   let [snack,setsnack]=useState(false);
   let [dinner,setdinner]=useState(false);
   let [msg,setmsg]=useState([]);
+  let [error,errormsg]=useState(false);
    let  res=localStorage.getItem("token");
    if(res===null)
    {
     return (
-      <div className={"font-[geist_mono] m-2 border-4 border-neutral-100 md:w-[40%]"}>
+       <div className={"font-[geist_mono] m-2 border-4 border-neutral-100 md:w-[40%]"}>
         <p className={"font-semibold mb-4"}>Want this menu delivered straight to your notifications?</p>
         <p>Pick your preferred meal</p>
         <div className={"flex flex-row w-[100%]  justify-around mt-6 mb-6"}>
@@ -76,12 +88,39 @@ export default App;
       setdinner(prev=>!prev)
     }}>Dinner</button>
   </div>
+  {
+    status==="12" &&<p className={"loading  text-info loading-xl w-[20%] ml-36"}></p>
+
+  }
+
+  {
+    error && 
+    <p className={"font-[geist_Mono] text-rose-600 font-bold ml-18"}>Please Select the Meal!</p>
+  }
+  
 
         
          
-  <button className={"btn btn-success btn-wide ml-16"} onClick={()=>{
-    Check(msg);
+  <button className={"btn btn-success btn-wide mt-4 ml-16"} onClick={()=>{
+    if(msg.length==0)
+    {
+      errormsg(true);
+      
+    }
+    else
+    {
+      errormsg(false);
+      setstatus("12")
+  setstatus(Check(msg));
+
+    }
+    
+    
+    
+
+    
   }}>Notify</button>
+  
 
       </div>
     )
@@ -89,8 +128,9 @@ export default App;
    }
    else
    {
-    return <>
-    <p>congrats you are notified</p>
-    </>
+    return (
+    <p className={"ml-18 mt-4 mb-2 font-[geist_Mono]"}>
+      Congrats you are notified!😊</p>
+    )
    }
  }
