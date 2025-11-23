@@ -61,7 +61,6 @@ export default App;
   let [lunch,setlunch]=useState(false);
   let [snack,setsnack]=useState(false);
   let [dinner,setdinner]=useState(false);
-  let [msg,setmsg]=useState([]);
   let [error,errormsg]=useState(false);
    let  res=localStorage.getItem("token");
    if(res===null)
@@ -72,24 +71,24 @@ export default App;
         <p>Pick your preferred meal</p>
         <div className={"flex flex-row w-[100%]  justify-around mt-6 mb-6"}>
     <button className={"btn btn-neutral " +(breakfast ? "border-4 border-neutral-700":"border-0")} onClick={()=>{
-      setmsg(prev=>[...prev,"breakfast"])
+      
       setbreakfast(prev=>!prev);
     }}>BreakFast</button>
     <button className={"btn btn-neutral "+(lunch ?" border-4 border-neutral-700":"border-0")} onClick={()=>{
       setlunch(prev=>!prev)
-      setmsg(prev=>[...prev,"lunch"])
+     
     }}>Lunch</button>
     <button className={"btn btn-neutral "+(snack ? "border-4 border-neutral-700":"border-0")} onClick={()=>{
-      setmsg(prev=>[...prev,"snacks"])
+      
       setsnack(prev=>!prev)
     }}>Snacks</button>
     <button className={"btn btn-neutral "+(dinner ? "border-4 border-neutral-700" :"border-0")} onClick={()=>{
-      setmsg(prev=>[...prev,"dinner"])
+      
       setdinner(prev=>!prev)
     }}>Dinner</button>
   </div>
   {
-    status==="12" &&<p className={"loading  text-info loading-xl w-[20%] ml-36"}></p>
+    status==="12" && <p className={"loading  text-info loading-xl w-[20%] ml-36"}></p>
 
   }
 
@@ -101,17 +100,38 @@ export default App;
 
         
          
-  <button className={"btn btn-success btn-wide mt-4 ml-16"} onClick={()=>{
-    if(msg.length==0)
+  <button className={"btn btn-success btn-wide mt-4 ml-16"} onClick={async ()=>{
+ 
+    if(!breakfast&&!lunch&&
+      !dinner&&!snack)
     {
       errormsg(true);
+       console.log("Sadfa")
       
     }
     else
     {
+       let msg=[]
+      if(breakfast)
+      {
+        msg.push("breakfast");
+      }
+      if(lunch)
+      {
+        msg.push("lunch");
+      }
+      if(snack)
+      {
+        msg.push("snacks");
+      }
+      if(dinner)
+      {
+        msg.push("dinner")
+      }
       errormsg(false);
       setstatus("12")
-  setstatus(Check(msg));
+     let res=await Check(msg);
+     setstatus("200");
 
     }
     
