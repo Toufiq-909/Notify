@@ -1,0 +1,15 @@
+name: Cron Job
+on:
+   schedule:
+     - cron: "50 11 * * *" # 5:20 PM in IST 
+     - cron: "20 13 * * *" # 6:50 PM in IST
+     - cron : "50 1 * * *" #7:20 AM in IST
+     - cron : "50 6 * * *" #12:20 PM in IST
+jobs:
+   call-render:
+     runs-on: ubuntu-latest
+     steps:
+       - name: trigger api
+         run: curl -X GET "https://notify-9fm4.onrender.com/cron"
+       
+     
