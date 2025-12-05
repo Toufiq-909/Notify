@@ -9,6 +9,7 @@ async function File(req,res)
 {
    if(req.headers.password==process.env.password)
    {
+      await mess.deleteMany({});
       readxl(req.file.path).then(async (rows)=>{
       console.log(rows.length)
       for(let i=1;i<rows.length;i++)
@@ -179,7 +180,7 @@ cron.schedule("25 17 * * *",async ()=>{
 
   
 })
-cron.schedule("23 22 * * *",async ()=>{
+cron.schedule("53 18 * * *",async ()=>{
    console.log("Running 4");
    let date=new Date().getDate();
     date=date+"";
