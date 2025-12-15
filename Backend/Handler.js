@@ -2,7 +2,6 @@ const {mess,user }=require("./db");
 const admin=require("./firebase");
 const readxl=require("read-excel-file/node");
 const dotenv=require("dotenv");
-const cron=require("node-cron");
 dotenv.config()
 
 async function File(req,res)
@@ -68,8 +67,8 @@ async function Add(req,res)
       res.sendStatus(500);
    }
 }
-
-cron.schedule("25 7 * * *",async ()=>{
+async function Service1(req,res)
+{
    console.log("Running 1");
    let date=new Date().getDate();
     date=date+"";
@@ -98,15 +97,16 @@ cron.schedule("25 7 * * *",async ()=>{
   let resp=await admin.messaging().send(message);
   console.log(resp);
   }
+  res.sendStatus(200);
    }
    catch(e)
    {
     console.log(e);
+    res.sendStatus(500);
    }
-
-  
-})
-cron.schedule("25 12 * * *",async ()=>{
+}
+async function Service2(req,res)
+{
    console.log("Running 2");
    let date=new Date().getDate();
     date=date+"";
@@ -135,16 +135,18 @@ cron.schedule("25 12 * * *",async ()=>{
   let resp=await admin.messaging().send(message);
   console.log(resp);
   }
+  res.sendStatus(200);
    }
    catch(e)
    {
     console.log(e);
+    res.sendStatus(500);
    }
 
-  
-})
-cron.schedule("25 17 * * *",async ()=>{
-   console.log("Running 3");
+}
+async function Service3(req,res)
+{
+    console.log("Running 3");
    let date=new Date().getDate();
     date=date+"";
     if(date.length==1)
@@ -172,16 +174,17 @@ cron.schedule("25 17 * * *",async ()=>{
   let resp=await admin.messaging().send(message);
   console.log(resp);
   }
+  res.sendStatus(200);
    }
    catch(e)
    {
     console.log(e);
+    res.sendStatus(500);
    }
-
-  
-})
-cron.schedule("53 18 * * *",async ()=>{
-   console.log("Running 4");
+}
+async function Service4(req,res)
+{
+      console.log("Running 4");
    let date=new Date().getDate();
     date=date+"";
     if(date.length==1)
@@ -209,14 +212,21 @@ cron.schedule("53 18 * * *",async ()=>{
   let resp=await admin.messaging().send(message);
   console.log(resp);
   }
+  res.sendStatus(200);
    }
    catch(e)
    {
     console.log(e);
+    res.sendStatus(500);
    }
+   
+}
+
+
 
   
-})                        
+
+                      
    
 
 async function meal(req,res)
@@ -355,16 +365,15 @@ async function meal(req,res)
    
 
 }
-async function forcron(req,res)
-{
-   console.log("I'm running");
-   res.sendStatus(200);
-}
+
 module.exports={
     Add:Add,
     File:File,
     meal:meal,
-    cron:forcron
+    Service1:Service1,
+    Service2:Service2,
+    Service3:Service3,
+    Service4:Service4
 }
 
 
