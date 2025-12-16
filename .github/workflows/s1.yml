@@ -1,13 +1,18 @@
 name: Service 1
 on:
    schedule:
-     - cron : "10 1 * * *" #6:40 AM in IST
+     
+     - cron: "10 1 * * *" #6:40 AM in IST
      
 jobs:
    call-Service1:
      runs-on: ubuntu-latest
      steps:
        - name: trigger api
-         run: curl -X GET "https://notify-9fm4.onrender.com/s1"
+         run: |
+          curl -X GET "https://notify-9fm4.onrender.com/s1" \
+          -H "Content-Type: application/json" \
+          -H "token:${{secrets.token}}"
+
        
      

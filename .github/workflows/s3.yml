@@ -4,7 +4,10 @@ on:
      - cron: "30 10 * * *" #4:00 PM in IST
 jobs:
     call-Service3:
-    runs-on: ubuntu-latest
-    steps:
-    - name: trigger api
-    run: curl -X GET "https://notify-9fm4.onrender.com/s3"
+      runs-on: ubuntu-latest
+      steps:
+       - name: trigger api
+         run: |
+          curl -X GET "https://notify-9fm4.onrender.com/s3" \
+          -H "Content-Type: application/json" \
+          -H "token:${{secrets.token}}"

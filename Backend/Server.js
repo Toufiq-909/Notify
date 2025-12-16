@@ -13,7 +13,8 @@ app.use(cors());
 app.use(exp.json());
 app.post("/user",Add)
 app.post("/upload",upload.single("file"),File)
-app.get("/meal",meal)
+app.get("/meal",meal);
+app.use(verify);
 app.get("/s1",Service1);
 app.get("/s2",Service2);
 app.get("/s3",Service3);
@@ -32,3 +33,15 @@ app.listen(3000);
     
 }
 a();
+async function  verify(req,res,next)
+{
+    if(req.header("token")==process.env.token)
+    {
+        console.log("Validated");
+        next();
+    }
+    else
+    {
+        return res.sendStatus(403);
+    }
+}
