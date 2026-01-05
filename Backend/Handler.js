@@ -2,6 +2,7 @@ const {mess,user }=require("./db");
 const admin=require("./firebase");
 const readxl=require("read-excel-file/node");
 const dotenv=require("dotenv");
+const { getMessaging }=require("firebase-admin/messaging");
 dotenv.config()
 
 async function File(req,res)
@@ -365,7 +366,35 @@ async function meal(req,res)
    
 
 }
+async function ValiateFcmToken(req,res,next)
+{
+    let result=await user.find();
+    
+    for(let i=0;i<result.length;i++)
+    {
+        const msg={
+         data:{
+            hello:"asdfasdf"
+         },
+         token:result[i].token
+        }
+        getMessaging().send(msg)
+        .then((response)=>{
+         
 
+        })
+        .catch(async (error)=>{
+       
+            console.log("Invalid token");
+            console.log(result[i]);
+            console.log(error);
+            await user.deleteOne({
+               token:result[i].token
+            })
+        })
+    }
+    next();
+}
 module.exports={
     Add:Add,
     File:File,
@@ -373,7 +402,8 @@ module.exports={
     Service1:Service1,
     Service2:Service2,
     Service3:Service3,
-    Service4:Service4
+    Service4:Service4,
+    ValiateFcmToken:ValiateFcmToken
 }
 
 
