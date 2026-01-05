@@ -9,7 +9,8 @@ export async function Check(meal)
         if("Notification" in window)
         {
             const permission=await Notification.requestPermission();
-            if(permission)
+            console.log(permission);
+            if(permission!=="denied")
             {
                 console.log("Granted");
 const firebaseConfig = {
@@ -26,8 +27,8 @@ const firebaseConfig = {
                 const app=initializeApp(firebaseConfig);
                 const messaging=getMessaging(app);
                 console.log("sairam");
-                getToken(messaging,{vapidKey:'BIstwrUJTsDtYdCrFm0tH1HTv1QvJJw9Pzu7If2M36qWSsgnSjTwGj5GTZdOv5cRRaLEcGZZIKwLydgN7HDGaFs'}).then(async (ct)=>{
-                    if(ct)
+               let ct =await getToken(messaging,{vapidKey:'BIstwrUJTsDtYdCrFm0tH1HTv1QvJJw9Pzu7If2M36qWSsgnSjTwGj5GTZdOv5cRRaLEcGZZIKwLydgN7HDGaFs'})
+                 if(ct)
                     {
                         
                         localStorage.setItem("token",ct);
@@ -41,30 +42,30 @@ const firebaseConfig = {
                                 token:ct,
                                 meal:meal
                             })
-                        })
-                         window.location.reload();
-
-                    }
-                    else
-                    {
-                        console.log("error in fetch");
+                        });
                         
-                    }
+                        return String(res.status);
+                         
 
-                })
+                    }
+                    
+                  
+
+                
 
 
 
             }
             else
             {
-                return "Access denied";
+                
+                return "403";
                
             }
         }
     }
     else
     {
-        return "browserissue";
+        return "400";
     }
 }
