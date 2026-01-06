@@ -3,6 +3,7 @@ import {getMessaging,getToken} from "firebase/messaging";
 
 export async function Check(meal)
 {
+   
      if('serviceWorker' in navigator)
     {
         navigator.serviceWorker.register('/firebase-messaging-sw.js');
