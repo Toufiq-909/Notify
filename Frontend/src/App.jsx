@@ -90,6 +90,7 @@ function Button() {
   let [snack, setsnack] = useState(false);
   let [dinner, setdinner] = useState(false);
   let [error, errormsg] = useState(false);
+  let [btn,setbtn]=useState(false);
 
   let res = localStorage.getItem("token");
 
@@ -169,8 +170,10 @@ function Button() {
         <button 
           className="btn btn-success btn-block text-white text-lg shadow-lg hover:shadow-green-200 mt-4" 
           onClick={async () => {
+            setbtn(true)
             if (!breakfast && !lunch && !dinner && !snack) {
               errormsg(true);
+              setbtn(false);
             } else {
               let msg = [];
               if (breakfast) msg.push("breakfast");
@@ -180,6 +183,7 @@ function Button() {
               errormsg(false);
               setstatus("12");
               let res = await Check(msg);
+              setbtn(false);
               console.log(res+"asdf");
               if(res==="200")
               {
@@ -195,7 +199,7 @@ function Button() {
               }
             }
           }}
-        >
+        disabled={btn}>
           Activate Notifications
         </button>
       </div>
