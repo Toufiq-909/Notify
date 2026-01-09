@@ -2,7 +2,7 @@ name: Service 1
 on:
    schedule:
      
-     - cron: "10 0 * * *" #5:40 AM in IST
+     - cron: "40 23 * * *" #5:10 AM in IST
      
 jobs:
    call-Service1:

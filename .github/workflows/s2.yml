@@ -1,7 +1,7 @@
 name: Service 2
 on:
     schedule:
-     - cron: "50 5 * * *" #11:20 AM in IST
+     - cron: "20 6 * * *" #11:50 AM in IST
 jobs:
     call-Service2:
       runs-on: ubuntu-latest
