@@ -83,8 +83,7 @@ async function Service1(req,res)
    let result2=await user.find({
       meal:"breakfast"
    });
-    try
-   {
+   
       for(let i=0;i<result2.length;i++)
       {
 
@@ -95,16 +94,41 @@ async function Service1(req,res)
   },
   token: result2[i].token
   };
-  let resp=await admin.messaging().send(message);
-  console.log(resp);
+   try
+  {
+let resp=await admin.messaging().send(message);
+console.log(i+" token");
+console.log(resp);
+
+  }
+  catch(e)
+  {
+   console.log(e);
+   console.log(i+"token");
+    //re try
+
+    
+       try
+  {
+let resp=await admin.messaging().send(message);
+console.log("second time it got suceeed");
+console.log(i+" token");
+console.log(resp);
+
+  }
+  catch(e)
+  {
+   console.log(e);
+   console.log(i+"token");
+   console.log("failed again")
+   
+  }
+   
+  }
   }
   res.sendStatus(200);
-   }
-   catch(e)
-   {
-    console.log(e);
-    res.sendStatus(500);
-   }
+   
+  
 }
 async function Service2(req,res)
 {
@@ -121,8 +145,7 @@ async function Service2(req,res)
    let result2=await user.find({
       meal:"lunch"
    });
-    try
-   {
+   
       for(let i=0;i<result2.length;i++)
       {
 
@@ -133,16 +156,44 @@ async function Service2(req,res)
   },
   token: result2[i].token
   };
-  let resp=await admin.messaging().send(message);
-  console.log(resp);
+  try
+  {
+let resp=await admin.messaging().send(message);
+console.log(i+" token");
+console.log(resp);
+
+  }
+  catch(e)
+  {
+   console.log(e);
+   console.log(i+"token");
+   //re try
+
+   
+       try
+  {
+let resp=await admin.messaging().send(message);
+console.log("second time it got suceeed");
+console.log(i+" token");
+console.log(resp);
+
+  }
+  catch(e)
+  {
+   console.log(e);
+   console.log(i+"token");
+   console.log("failed again")
+   
+  }
+    
+
+
+
+  }
   }
   res.sendStatus(200);
-   }
-   catch(e)
-   {
-    console.log(e);
-    res.sendStatus(500);
-   }
+   
+   
 
 }
 async function Service3(req,res)
@@ -160,8 +211,7 @@ async function Service3(req,res)
    let result2=await user.find({
       meal:"snacks"
    });
-    try
-   {
+   
       for(let i=0;i<result2.length;i++)
       {
 
@@ -172,16 +222,40 @@ async function Service3(req,res)
   },
   token: result2[i].token
   };
-  let resp=await admin.messaging().send(message);
-  console.log(resp);
+  try
+  {
+let resp=await admin.messaging().send(message);
+console.log(i+" token");
+console.log(resp);
+
+  }
+  catch(e)
+  {
+   console.log(e);
+   console.log(i+"token");
+    //re try
+
+   
+       try
+  {
+let resp=await admin.messaging().send(message);
+console.log("second time it got suceeed");
+console.log(i+" token");
+console.log(resp);
+
+  }
+  catch(e)
+  {
+   console.log(e);
+   console.log(i+"token");
+   console.log("failed again")
+   
+  }
+   
+  }
   }
   res.sendStatus(200);
-   }
-   catch(e)
-   {
-    console.log(e);
-    res.sendStatus(500);
-   }
+   
 }
 async function Service4(req,res)
 {
@@ -198,8 +272,7 @@ async function Service4(req,res)
    let result2=await user.find({
       meal:"dinner"
    });
-    try
-   {
+   
       for(let i=0;i<result2.length;i++)
       {
 
@@ -210,16 +283,43 @@ async function Service4(req,res)
   },
   token: result2[i].token
   };
-  let resp=await admin.messaging().send(message);
-  console.log(resp);
+  try
+  {
+let resp=await admin.messaging().send(message);
+console.log(i+" token");
+console.log(resp);
+
+  }
+  catch(e)
+  {
+   console.log(e);
+   console.log(i+"token");
+    //re try
+
+    
+       try
+  {
+let resp=await admin.messaging().send(message);
+console.log("second time it got suceeed");
+console.log(i+" token");
+console.log(resp);
+
+  }
+  catch(e)
+  {
+   console.log(e);
+   console.log(i+"token");
+   console.log("failed again")
+   
+  }
+    
+  }
+  
+  
   }
   res.sendStatus(200);
-   }
-   catch(e)
-   {
-    console.log(e);
-    res.sendStatus(500);
-   }
+   
+  
    
 }
 
@@ -366,35 +466,7 @@ async function meal(req,res)
    
 
 }
-async function ValiateFcmToken(req,res,next)
-{
-    let result=await user.find();
-    
-    for(let i=0;i<result.length;i++)
-    {
-        const msg={
-         data:{
-            hello:"asdfasdf"
-         },
-         token:result[i].token
-        }
-        getMessaging().send(msg)
-        .then((response)=>{
-         
 
-        })
-        .catch(async (error)=>{
-       
-            console.log("Invalid token");
-            console.log(result[i]);
-            console.log(error);
-            await user.deleteOne({
-               token:result[i].token
-            })
-        })
-    }
-    next();
-}
 module.exports={
     Add:Add,
     File:File,
@@ -403,7 +475,7 @@ module.exports={
     Service2:Service2,
     Service3:Service3,
     Service4:Service4,
-    ValiateFcmToken:ValiateFcmToken
+    
 }
 
 
