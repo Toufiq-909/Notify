@@ -322,6 +322,10 @@ console.log(resp);
   
    
 }
+async function MessNotAvl(req,res)
+{
+  return res.send("Menu this month? Nah bro, unavailable 💀");
+}
 
 
 
@@ -475,6 +479,7 @@ module.exports={
     Service2:Service2,
     Service3:Service3,
     Service4:Service4,
+    MessNotAvl:MessNotAvl
     
 }
 
