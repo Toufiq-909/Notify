@@ -26,7 +26,7 @@ function App() {
           <div className="w-full md:w-1/3">
             <div className="card bg-base-100 shadow-xl overflow-hidden rounded-3xl border border-slate-200">
               <img 
-                src="/img3.jpeg" 
+                src="/img4.jpeg" 
                 className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" 
                 alt="Meal illustration"
               />
