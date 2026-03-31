@@ -53,10 +53,10 @@ function Meal() {
   useEffect(() => {
     let call = async () => {
       let res = await fetch(import.meta.env.VITE_API1);
-      let result = await res.json();//json
+      let result = await res.text();//json
     
-      setmenu(result.meal);//meal
-      setmeal(result.menu);//menu
+      setmenu(result);//meal
+      setmeal();//menu
     };
     call();
   }, []);
