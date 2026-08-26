@@ -334,140 +334,52 @@ async function MessNotAvl(req,res)
                       
    
 
-async function meal(req,res)
-{
-   let date=new Date().getDate();
-   let hour=new Date().getHours();
-   let minute=new Date().getMinutes();
-   console.log(hour);
-   console.log(minute);
-    if(hour>=0 && hour<=8)
-    {
-       date=date+"";
-    if(date.length==1)
-    {
-      date="0"+date;
+async function meal(req, res) {
+  let date = new Date().getDate();
+
+  let hour = new Date().getHours();
+  date = date + "";
+  console.log(date);
+  console.log(hour);
+
+  if (hour <= 21) {
+    if (date.length == 1) {
+      date = "0" + date;
     }
-    try
-    {
-       let result=await mess.findOne({
-      date:date
-   });
-    return res.status(200).json({
-      menu:result.breakfast,
-      meal:"Breakfast"
-    })
-  
-    }
-    catch(e)
-    {
+    try {
+      let result = await mess.findOne({
+        date: date
+      });
+      return res.status(200).json({
+        menu: result,
+        meal: "current"
+      })
+
+    } catch (e) {
       console.log(e);
       return res.sendStatus(500);
     }
-  
+  } else {
 
+    date = date + 1 + "";
+    if (date.length == 1) {
+      date = "0" + date;
     }
-    else if(hour>=9 && hour<=13)
-    {
+    try {
+      let result = await mess.findOne({
+        date: date
+      });
+      return res.status(200).json({
+        menu: result,
+        meal: "Upcoming"
+      })
 
-      date=date+"";
-    if(date.length==1)
-    {
-      date="0"+date;
-    }
-    try
-    {
-       let result=await mess.findOne({
-      date:date
-   });
-    return res.status(200).json({
-      menu:result.lunch,
-      meal:"Lunch"
-    })
-  
-    }
-    catch(e)
-    {
+    } catch (e) {
       console.log(e);
       return res.sendStatus(500);
     }
 
-    }
-    else if(hour>=14 && hour<=17 || (hour==18 && minute<=30))
-    {
-      date=date+"";
-    if(date.length==1)
-    {
-      date="0"+date;
-    }
-    try
-    {
-       let result=await mess.findOne({
-      date:date
-   });
-    return res.status(200).json({
-      menu:result.snacks,
-      meal:"Snacks"
-    })
-  
-    }
-    catch(e)
-    {
-      console.log(e);
-      return res.sendStatus(500);
-    }
-
-    }
-    else if((hour==18 && minute>30)||hour>=19 && hour<=20)
-    {
-      date=date+"";
-    if(date.length==1)
-    {
-      date="0"+date;
-    }
-    try
-    {
-       let result=await mess.findOne({
-      date:date
-   });
-    return res.status(200).json({
-      menu:result.dinner,
-      meal:"Dinner"
-
-    })
-  
-    }
-    catch(e)
-    {
-      console.log(e);
-      return res.sendStatus(500);
-    }
-    }
-    else
-    {
-      date=date+1+"";
-    if(date.length==1)
-    {
-      date="0"+date;
-    }
-    try
-    {
-       let result=await mess.findOne({
-      date:date
-   });
-    return res.status(200).json({
-      menu:result.breakfast,
-      meal:"Upcoming"
-    })
-  
-    }
-    catch(e)
-    {
-      console.log(e);
-      return res.sendStatus(500);
-    }
-    }
-   
+  }
 
 }
 

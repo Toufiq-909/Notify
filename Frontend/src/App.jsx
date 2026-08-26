@@ -42,6 +42,11 @@ function App() {
   );
 }
 
+
+
+
+
+
 export default App;
 
 /* ---------------- Meal ---------------- */
@@ -49,26 +54,120 @@ export default App;
 function Meal() {
   let [menu, setmenu] = useState("");
   let [meal, setmeal] = useState("");
+  let [nextday, setnextday] = useState("");
+  let [index,setindex]=useState(0);
+
+  let selectmeal=["breakfast","lunch","snacks","dinner"]
 
   useEffect(() => {
     let call = async () => {
-      let res = await fetch(import.meta.env.VITE_API1);
+      let data=JSON.parse(localStorage.getItem("menu"));
+      console.log(data);
+      
+
+      if(data==null)
+      {
+             let res = await fetch(import.meta.env.VITE_API1);
+
+      if(res.status==500)
+      {
+        setmeal("Sorry,please try later")
+        return
+      }
+      
+
+
+      
       let result = await res.json();//json
-       
-      setmenu(result.meal);//meal
-      setmeal(result.menu);//menu
+      localStorage.setItem("menu",JSON.stringify(result.menu));
+      data=result.menu;
+
+      }
+     
+
+      console.log(data);
+
+      let hour=new Date().getHours();
+      let minute=new Date().getMinutes();
+
+      if(hour<=9)
+      {
+
+        setmenu("Breakfast");
+        setmeal(data.breakfast);
+        setindex(0)
+        settomorrow("");
+      }
+      else if(hour>9 && hour<=14)
+      {
+
+        console.log(data.lunch)
+
+        setmenu("Lunch");
+        setmeal(data.lunch);
+        setindex(1);
+        settomorrow("");
+
+      }
+      else if((hour>14 && hour<18) || (hour==18 && minute<=15 ))
+      {
+        setmenu("Snacks");
+        setmeal(data.snacks);
+        setindex(2);
+        setnextday("");
+
+      }
+      else if(hour>=18 && hour<=21)
+      {
+
+        setmenu("Dinner");
+        setmeal(data.dinner);
+         setindex(3);
+         setnextday("");
+        
+      }
+       else{
+        setnextday(" (The Next Day)")
+         setindex(0);
+
+       }
+      //setmenu(result.meal);//meal heading
+      //setmeal(result.menu.breakfast);//menu
     };
     call();
   }, []);
 
+  useEffect(()=>{
+
+    let data=JSON.parse(localStorage.getItem("menu"));
+              let mealtype=selectmeal[index];
+              setmenu(mealtype.charAt(0).toUpperCase()+mealtype.substring(1)+nextday);
+              setmeal(data[mealtype])
+
+  },[index,nextday])
+
   return (
     <div className="card bg-white shadow-xl border border-slate-100">
-      <div className="card-body p-8">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+      <div className="card-body p-5">
+        <div className="flex items-center gap-2 ">
+         <div className="flex justify-between  w-full bg-red900 ">
+            <div className="flex gap-2 pt-2">
+               <div className="h-2 w-2 absolute top-8  rounded-full bg-green-500 animate-pulse"></div>
+          <p className="text-xs pl-4  font-bold uppercase tracking-widest text-slate-400">
             Live Menu
-          </span>
+
+          </p>
+            </div>
+
+             <button className="btn bg-blue-500 btn-md text-white" onClick={()=>{
+              setindex(prev=>(prev+1)%4)
+
+
+             
+             }}>Next </button>
+
+         </div>
+         
         </div>
 
         {meal === "" ? (
