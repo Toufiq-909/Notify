@@ -361,11 +361,12 @@ async function meal(req, res) {
     }
   } else {
 
-    date = date + 1 + "";
+    date = parseInt(date) + 1 + "";
     if (date.length == 1) {
       date = "0" + date;
     }
     try {
+      console.log(date);
       let result = await mess.findOne({
         date: date
       });

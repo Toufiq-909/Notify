@@ -85,6 +85,9 @@ function Meal() {
 
       
       let result = await res.json();//json
+      console.log(result)
+
+      console.log(result.menu);
    
       localStorage.setItem("menu",JSON.stringify(result.menu));
       localStorage.setItem("hour",hour);
