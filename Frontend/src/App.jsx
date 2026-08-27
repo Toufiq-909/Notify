@@ -62,11 +62,17 @@ function Meal() {
   useEffect(() => {
     let call = async () => {
       let data=JSON.parse(localStorage.getItem("menu"));
+      let Hour=parseInt(localStorage.getItem("hour"));
       console.log(data);
+      console.log(Hour);
+
+         let hour=new Date().getHours();
+      let minute=new Date().getMinutes();
       
 
-      if(data==null)
+      if(data==null ||Number.isNaN(Hour) || Hour>21)
       {
+      
              let res = await fetch(import.meta.env.VITE_API1);
 
       if(res.status==500)
@@ -79,7 +85,9 @@ function Meal() {
 
       
       let result = await res.json();//json
+   
       localStorage.setItem("menu",JSON.stringify(result.menu));
+      localStorage.setItem("hour",hour);
       data=result.menu;
 
       }
@@ -87,8 +95,7 @@ function Meal() {
 
       console.log(data);
 
-      let hour=new Date().getHours();
-      let minute=new Date().getMinutes();
+      
 
       if(hour<=9)
       {
@@ -140,9 +147,12 @@ function Meal() {
   useEffect(()=>{
 
     let data=JSON.parse(localStorage.getItem("menu"));
-              let mealtype=selectmeal[index];
+              if(data!=null)
+              {
+                let mealtype=selectmeal[index];
               setmenu(mealtype.charAt(0).toUpperCase()+mealtype.substring(1)+nextday);
               setmeal(data[mealtype])
+              }
 
   },[index,nextday])
 
