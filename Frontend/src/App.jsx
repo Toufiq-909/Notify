@@ -62,15 +62,19 @@ function Meal() {
   useEffect(() => {
     let call = async () => {
       let data=JSON.parse(localStorage.getItem("menu"));
-      let Hour=parseInt(localStorage.getItem("hour"));
+      let Hour=localStorage.getItem("hour");
+       let localdate=localStorage.getItem("date");
+       console.log(localdate);
       console.log(data);
       console.log(Hour);
 
          let hour=new Date().getHours();
       let minute=new Date().getMinutes();
+
+      let date=new Date().getDate()+"";
       
 
-      if(data==null ||Number.isNaN(Hour) || Hour>21)
+      if(data==null ||Number.isNaN(Hour) ||Number.isNaN(date)|| (Hour>21&&nextday==="") ||date!=localdate )
       {
       
              let res = await fetch(import.meta.env.VITE_API1);
@@ -81,16 +85,25 @@ function Meal() {
         return
       }
       
+      
 
 
       
       let result = await res.json();//json
       console.log(result)
+      
+      if(result.menu==null)
+      {
+          setmeal("Sorry,please try later")
+        return
+
+      }
 
       console.log(result.menu);
    
       localStorage.setItem("menu",JSON.stringify(result.menu));
       localStorage.setItem("hour",hour);
+      localStorage.setItem("date",date);
       data=result.menu;
 
       }
@@ -106,7 +119,7 @@ function Meal() {
         setmenu("Breakfast");
         setmeal(data.breakfast);
         setindex(0)
-        settomorrow("");
+        setnextday("");
       }
       else if(hour>9 && hour<=14)
       {
@@ -116,7 +129,7 @@ function Meal() {
         setmenu("Lunch");
         setmeal(data.lunch);
         setindex(1);
-        settomorrow("");
+        setnextday("");
 
       }
       else if((hour>14 && hour<18) || (hour==18 && minute<=15 ))
@@ -137,6 +150,7 @@ function Meal() {
         
       }
        else{
+        
         setnextday(" (The Next Day)")
          setindex(0);
 

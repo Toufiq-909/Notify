@@ -337,7 +337,7 @@ async function MessNotAvl(req,res)
 async function meal(req, res) {
   let date = new Date().getDate();
 
-  let hour = new Date().getHours();
+  let hour =new Date().getHours();
   date = date + "";
   console.log(date);
   console.log(hour);
