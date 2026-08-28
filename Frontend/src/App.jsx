@@ -74,7 +74,7 @@ function Meal() {
       let date=new Date().getDate()+"";
       
 
-      if(data==null ||Number.isNaN(Hour) ||Number.isNaN(date)|| (Hour>21&&nextday==="") ||date!=localdate )
+      if(data==null ||Number.isNaN(Hour) ||Number.isNaN(date)|| (hour>21&&nextday==="") ||date!=localdate )
       {
       
              let res = await fetch(import.meta.env.VITE_API1);
