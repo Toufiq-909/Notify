@@ -51,6 +51,10 @@ function useMonthMenu() {
       setState({ monthMenu: cached, menuStatus: "ready" });
       return;
     }
+    if (!navigator.onLine) {
+      setState({ monthMenu: null, menuStatus: "error" });
+      return;
+    }
     setState({ monthMenu: null, menuStatus: "loading" });
     try {
       if (!pendingMonthMenu) {
@@ -63,12 +67,26 @@ function useMonthMenu() {
       setState({ monthMenu: null, menuStatus: "error" });
     }
   }, []);
-  useEffect(() => { loadMonthMenu(); }, [loadMonthMenu]);
+  useEffect(() => {
+    loadMonthMenu();
+    window.addEventListener('online', loadMonthMenu);
+    return () => window.removeEventListener('online', loadMonthMenu);
+  }, [loadMonthMenu]);
   return { ...state, loadMonthMenu };
 }
 
 export default function App() {
   const monthlyMenu = useMonthMenu();
+  const [online, setOnline] = useState(() => navigator.onLine);
+  useEffect(() => {
+    const updateConnection = () => setOnline(navigator.onLine);
+    window.addEventListener('online', updateConnection);
+    window.addEventListener('offline', updateConnection);
+    return () => {
+      window.removeEventListener('online', updateConnection);
+      window.removeEventListener('offline', updateConnection);
+    };
+  }, []);
   const [palette, setPalette] = useState(() => {
     try {
       const saved = localStorage.getItem("notify-palette");
@@ -134,6 +152,7 @@ export default function App() {
           </div>
         </header>
         <main>
+          {!online && <p className="offline-notice" role="status">{monthlyMenu.menuStatus === "ready" ? "You’re offline. Your saved menu and calendar still work." : "You’re offline. Connect once to save this month’s menu on this device."}</p>}
           <DailyMenu key={schedule.date + schedule.upcoming} schedule={schedule} {...monthlyMenu} />
           <div className="quick-links"><a href="#calendar"><Icon name="calendar" size={18} />Browse calendar<Icon name="arrow" size={16} /></a><a href="#notifications"><Icon name="bell" size={18} />Meal reminders<Icon name="arrow" size={16} /></a></div>
           <details className="appearance-panel">
@@ -284,6 +303,7 @@ function Notifications() {
   const [subscribed, setSubscribed] = useState(() => Boolean(localStorage.getItem("token")));
   const [busy, setBusy] = useState(false);
   async function subscribe() {
+    if (!navigator.onLine) { setStatus("Connect to the internet to activate notifications."); return; }
     if (!selected.length) { setStatus("Pick at least one meal to get started."); return; }
     setBusy(true); setStatus("");
     try {

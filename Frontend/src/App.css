@@ -287,3 +287,4 @@ html { scroll-padding-top: 24px; }
 @keyframes menu-shimmer { from { background-position:180% 0; } to { background-position:-40% 0; } }
 @media(prefers-reduced-motion:reduce) { .menu-skeleton span { animation:none; } }
 .brand-version { display:inline-flex; align-items:center; margin-left:8px; padding:4px 6px; border:0; color:var(--accent); font-size:11px; font-weight:600; letter-spacing:0; line-height:1; }
+.offline-notice { margin-top:18px; padding:12px 16px; border:1px solid var(--line); background:var(--soft); color:var(--ink); font-size:13px; line-height:1.6; }

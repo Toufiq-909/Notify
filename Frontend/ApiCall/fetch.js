@@ -6,7 +6,7 @@ export async function Check(meal)
    
      if('serviceWorker' in navigator)
     {
-        navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        const serviceWorkerRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
         if("Notification" in window)
         {
             const permission=await Notification.requestPermission();
@@ -28,7 +28,7 @@ const firebaseConfig = {
                 const app=initializeApp(firebaseConfig);
                 const messaging=getMessaging(app);
                 console.log("sairam");
-               let ct =await getToken(messaging,{vapidKey:'BIstwrUJTsDtYdCrFm0tH1HTv1QvJJw9Pzu7If2M36qWSsgnSjTwGj5GTZdOv5cRRaLEcGZZIKwLydgN7HDGaFs'})
+               let ct =await getToken(messaging,{serviceWorkerRegistration, vapidKey:'BIstwrUJTsDtYdCrFm0tH1HTv1QvJJw9Pzu7If2M36qWSsgnSjTwGj5GTZdOv5cRRaLEcGZZIKwLydgN7HDGaFs'})
                  if(ct)
                     {
                         
