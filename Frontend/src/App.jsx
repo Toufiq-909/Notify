@@ -1,329 +1,191 @@
+import { useEffect, useState } from "react";
 import { Check } from "../ApiCall/fetch";
-import { useState, useEffect } from "react";
+import "./App.css";
+import { customPalette } from "./palette";
+import { getMealSchedule } from "../../shared/menuTime.mjs";
+const calendarDate = (iso) => { const [year, month, day] = iso.split("-").map(Number); return new Date(year, month - 1, day); };
 
-function App() {
-  return (
-    <div className="min-h-screen bg-slate-50 font-[geist_mono]">
-      {/* Top Navigation / Header */}
-      <div className="Navbar bg-blue-600 px-6 py-10 text-white shadow-lg mb-8">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-extrabold tracking-tight">Notify</h1>
-          <p className="text-blue-100 text-lg mt-2 opacity-90">
-            Hey! Here’s the menu for the current meal.
-          </p>
-        </div>
-      </div>
+const MEALS = [
+  { key: "breakfast", label: "Breakfast", icon: "sun", note: "A good start to the day", time: "Morning" },
+  { key: "lunch", label: "Lunch", icon: "bowl", note: "Your midday recharge", time: "Afternoon" },
+  { key: "snacks", label: "Snacks", icon: "cup", note: "A little afternoon pick-me-up", time: "Evening" },
+  { key: "dinner", label: "Dinner", icon: "moon", note: "End the day on a good note", time: "Night" },
+];
+const dateKey = (date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+const fullDate = (date) => date.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
-      <div className="max-w-6xl mx-auto px-4 pb-20">
-        <div className="flex flex-col md:flex-row gap-8 items-start">
-          {/* Main Content Area */}
-          <div className="w-full md:w-2/3 space-y-6">
-            <Meal />
-            <Button />
-          </div>
-
-          {/* Sidebar Image Area (unchanged) */}
-          <div className="w-full md:w-1/3">
-            <div className="card bg-base-100 shadow-xl overflow-hidden rounded-3xl border border-slate-200">
-              <img 
-                src="/img4.jpeg" 
-                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" 
-                alt="Meal illustration"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <footer className="py-10 text-center font-[playFair] text-slate-400 border-t border-slate-200 bg-white mt-10">
-        <p className="text-lg italic">Made with lots of love ❤️</p>
-      </footer>
-    </div>
-  );
+function Icon({ name, size = 22 }) {
+  const paths = {
+    sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" /></>,
+    bowl: <><path d="M3 11h18a9 9 0 0 1-18 0ZM8 21h8M8 3v4m4-5v5m4-4v4" /></>,
+    cup: <><path d="M4 8h13v7a6 6 0 0 1-12 0V8m12 1h2a3 3 0 0 1 0 6h-2M3 22h17M8 2v3m5-3v3" /></>,
+    moon: <path d="M20 14A8.5 8.5 0 0 1 10 4a8.5 8.5 0 1 0 10 10Z" />,
+    calendar: <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M7 3v4m10-4v4M3 11h18m-13 4h2m4 0h2m-8 3h2" /></>,
+    bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></>,
+    arrow: <path d="M5 12h14m-5-5 5 5-5 5" />,
+    left: <path d="m14 6-6 6 6 6" />,
+    right: <path d="m10 6 6 6-6 6" />,
+    check: <path d="m5 12 4 4L19 6" />,
+  };
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name] || paths.bowl}</svg>;
 }
 
-
-
-
-
-
-export default App;
-
-/* ---------------- Meal ---------------- */
-
-function Meal() {
-  let [menu, setmenu] = useState("");
-  let [meal, setmeal] = useState("");
-  let [nextday, setnextday] = useState("");
-  let [index,setindex]=useState(0);
-
-  let selectmeal=["breakfast","lunch","snacks","dinner"]
-
-  useEffect(() => {
-    let call = async () => {
-      let data=JSON.parse(localStorage.getItem("menu"));
-      let Hour=localStorage.getItem("hour");
-       let localdate=localStorage.getItem("date");
-       console.log(localdate);
-      console.log(data);
-      console.log(Hour);
-
-         let hour=new Date().getHours();
-      let minute=new Date().getMinutes();
-
-      let date=new Date().getDate()+"";
-      
-
-      if(data==null ||Number.isNaN(Hour) ||Number.isNaN(date)|| (hour>21&&nextday==="") ||date!=localdate )
-      {
-      
-             let res = await fetch(import.meta.env.VITE_API1);
-
-      if(res.status==500)
-      {
-        setmeal("Sorry,please try later")
-        return
-      }
-      
-      
-
-
-      
-      let result = await res.json();//json
-      console.log(result)
-      
-      if(result.menu==null)
-      {
-          setmeal("Sorry,please try later")
-        return
-
-      }
-
-      console.log(result.menu);
-   
-      localStorage.setItem("menu",JSON.stringify(result.menu));
-      localStorage.setItem("hour",hour);
-      localStorage.setItem("date",date);
-      data=result.menu;
-
-      }
-     
-
-      console.log(data);
-
-      
-
-      if(hour<=9)
-      {
-
-        setmenu("Breakfast");
-        setmeal(data.breakfast);
-        setindex(0)
-        setnextday("");
-      }
-      else if(hour>9 && hour<=14)
-      {
-
-        console.log(data.lunch)
-
-        setmenu("Lunch");
-        setmeal(data.lunch);
-        setindex(1);
-        setnextday("");
-
-      }
-      else if((hour>14 && hour<18) || (hour==18 && minute<=15 ))
-      {
-        setmenu("Snacks");
-        setmeal(data.snacks);
-        setindex(2);
-        setnextday("");
-
-      }
-      else if(hour>=18 && hour<=21)
-      {
-
-        setmenu("Dinner");
-        setmeal(data.dinner);
-         setindex(3);
-         setnextday("");
-        
-      }
-       else{
-        
-        setnextday(" (The Next Day)")
-         setindex(0);
-
-       }
-      //setmenu(result.meal);//meal heading
-      //setmeal(result.menu.breakfast);//menu
-    };
-    call();
-  }, []);
-
-  useEffect(()=>{
-
-    let data=JSON.parse(localStorage.getItem("menu"));
-              if(data!=null)
-              {
-                let mealtype=selectmeal[index];
-              setmenu(mealtype.charAt(0).toUpperCase()+mealtype.substring(1)+nextday);
-              setmeal(data[mealtype])
-              }
-
-  },[index,nextday])
-
-  return (
-    <div className="card bg-white shadow-xl border border-slate-100">
-      <div className="card-body p-5">
-        <div className="flex items-center gap-2 ">
-         <div className="flex justify-between  w-full bg-red900 ">
-            <div className="flex gap-2 pt-2">
-               <div className="h-2 w-2 absolute top-8  rounded-full bg-green-500 animate-pulse"></div>
-          <p className="text-xs pl-4  font-bold uppercase tracking-widest text-slate-400">
-            Live Menu
-
-          </p>
-            </div>
-
-             <button className="btn bg-blue-500 btn-md text-white" onClick={()=>{
-              setindex(prev=>(prev+1)%4)
-
-
-             
-             }}>Next </button>
-
-         </div>
-         
-        </div>
-
-        {meal === "" ? (
-          <div className="space-y-3">
-            <div className="skeleton h-8 w-1/2"></div>
-            <div className="skeleton h-4 w-full"></div>
-            <div className="skeleton h-4 w-3/4"></div>
-          </div>
-        ) : (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
-            <h2 className="card-title text-3xl font-black text-slate-800 mb-2">
-              {menu}
-            </h2>
-            <p className="text-lg text-slate-600 leading-relaxed">
-              {meal}
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- Button ---------------- */
-
-function Button() {
-  let [status, setstatus] = useState("");
-  let [breakfast, setbreakfast] = useState(false);
-  let [lunch, setlunch] = useState(false);
-  let [snack, setsnack] = useState(false);
-  let [dinner, setdinner] = useState(false);
-  let [error, errormsg] = useState(false);
-  let [btn, setbtn] = useState(false);
-
-  let res = localStorage.getItem("token");
-
-  if (res === null) {
-    return (
-      <div className="card bg-white shadow-xl border border-slate-100 p-8">
-        <div className="mb-6">
-          <h3 className="text-xl font-bold text-slate-800">
-            Stay Updated
-          </h3>
-          <p className="text-slate-500">
-            Want this menu delivered straight to your notifications?
-          </p>
-        </div>
-
-        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">
-          Pick your preferred meals
-        </p>
-
-        {/* MEAL BUTTONS (UNCHANGED) */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <button className={`btn btn-md ${breakfast ? "btn-neutral" : "btn-outline"}`} onClick={() => setbreakfast(prev => !prev)}>
-            🍳 Breakfast
-          </button>
-          <button className={`btn btn-md ${lunch ? "btn-neutral" : "btn-outline"}`} onClick={() => setlunch(prev => !prev)}>
-            🍲 Lunch
-          </button>
-          <button className={`btn btn-md ${snack ? "btn-neutral" : "btn-outline"}`} onClick={() => setsnack(prev => !prev)}>
-            ☕ Snacks
-          </button>
-          <button className={`btn btn-md ${dinner ? "btn-neutral" : "btn-outline"}`} onClick={() => setdinner(prev => !prev)}>
-            🍽️ Dinner
-          </button>
-        </div>
-
-        {status === "12" && (
-          <div className="flex justify-center my-4">
-            <span className="loading loading-dots loading-lg text-blue-600"></span>
-          </div>
-        )}
-
-        {error && (
-          <div className="alert alert-error shadow-sm py-2 mb-4">
-            <span className="text-sm font-bold">
-              Please select at least one meal!
-            </span>
-          </div>
-        )}
-
-        {/* ✅ ONLY FIXED BUTTON */}
-        <button 
-          className="btn btn-success btn-block 
-                     text-base sm:text-lg
-                     h-12 sm:h-auto
-                     px-4
-                     whitespace-nowrap
-                     shadow-lg hover:shadow-green-200 mt-4"
-          onClick={async () => {
-            setbtn(true);
-            if (!breakfast && !lunch && !dinner && !snack) {
-              errormsg(true);
-              setbtn(false);
-            } else {
-              let msg = [];
-              if (breakfast) msg.push("breakfast");
-              if (lunch) msg.push("lunch");
-              if (snack) msg.push("snacks");
-              if (dinner) msg.push("dinner");
-              errormsg(false);
-              setstatus("12");
-              let res = await Check(msg);
-              setbtn(false);
-              if (res === "200") setstatus("200");
-              else if (res === "403") setstatus("403");
-              else setstatus("500");
-            }
-          }}
-          disabled={btn}
-        >
-          Activate Notifications
-        </button>
-      </div>
-    );
+export default function App() {
+  const [palette, setPalette] = useState(() => {
+    try {
+      const saved = localStorage.getItem("notify-palette");
+      return saved === "custom" ? "custom" : "graphite";
+    } catch { return "graphite"; }
+  });
+  const [customColor, setCustomColor] = useState(() => {
+    try { const saved = localStorage.getItem("notify-custom-color"); return /^#[0-9a-f]{6}$/i.test(saved) ? saved : "#3164bd"; }
+    catch { return "#3164bd"; }
+  });
+  function updateCustomColor(value) {
+    setCustomColor(value);
+    choosePalette("custom");
+    try { localStorage.setItem("notify-custom-color", value); } catch { /* Optional storage. */ }
   }
-
+  function choosePalette(value) {
+    setPalette(value);
+    try { localStorage.setItem("notify-palette", value); } catch { /* Selection works without storage. */ }
+  }
+  const [darkMode, setDarkMode] = useState(() => {
+    try { return localStorage.getItem("notify-theme") === "dark"; }
+    catch { return false; }
+  });
+  useEffect(() => {
+    const theme = darkMode ? "dark" : "light";
+    document.documentElement.style.colorScheme = theme;
+    document.documentElement.style.backgroundColor = darkMode ? "#131313" : "#ffffff";
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", darkMode ? "#131313" : "#ffffff");
+    try { localStorage.setItem("notify-theme", theme); } catch { /* Works without storage. */ }
+  }, [darkMode]);
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    let timer;
+    function tick() {
+      const current = new Date();
+      setNow(current);
+      clearTimeout(timer);
+      timer = setTimeout(tick, 60000 - (current.getTime() % 60000) + 50);
+    }
+    function resume() { if (!document.hidden) tick(); }
+    tick();
+    window.addEventListener("focus", tick);
+    document.addEventListener("visibilitychange", resume);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("focus", tick);
+      document.removeEventListener("visibilitychange", resume);
+    };
+  }, []);
+  const schedule = getMealSchedule(now);
+  const today = calendarDate(schedule.today);
   return (
-    <div className="card bg-green-50 border border-green-200 p-6 flex flex-row items-center gap-4">
-      <div className="text-3xl">✅</div>
-      <div>
-        <p className="font-bold text-green-800 text-lg">
-          You're all set!
-        </p>
-        <p className="text-green-700 opacity-80">
-          Congrats, you are officially notified! 😊
-        </p>
+    <div className={`design-page design-minimal palette-${palette}${darkMode ? " theme-dark" : ""}`} style={palette === "custom" ? customPalette(customColor, darkMode) : undefined}>
+      <div className="site-shell">
+        <header className="site-header">
+          <a className="brand" href="#" aria-label="Notify 2.0 home"><span className="brand-icon"><Icon name="bowl" size={24} /></span>notify<span className="brand-version">2.0</span></a>
+          <nav aria-label="Main navigation"><a href="#daily-menu">Daily menu</a><a href="#calendar">Meal calendar</a></nav>
+          <div className="header-controls">
+            <button className="theme-toggle" type="button" aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"} title={darkMode ? "Switch to light mode" : "Switch to dark mode"} onClick={() => setDarkMode(previous => !previous)}>
+              <Icon name={darkMode ? "moon" : "sun"} size={18} />
+            </button>
+            <a className="header-action" href="#notifications" aria-label="Get notified"><Icon name="bell" size={17} /><span>Get notified</span><Icon name="arrow" size={17} /></a>
+          </div>
+        </header>
+        <main>
+          <DailyMenu key={schedule.date + schedule.upcoming} schedule={schedule} />
+          <div className="quick-links"><a href="#calendar"><Icon name="calendar" size={18} />Browse calendar<Icon name="arrow" size={16} /></a><a href="#notifications"><Icon name="bell" size={18} />Meal reminders<Icon name="arrow" size={16} /></a></div>
+          <details className="appearance-panel">
+            <summary><span><Icon name="sun" size={18} />Appearance</span><span className="appearance-current">{palette === "custom" ? "Custom color" : "Graphite"}<span aria-hidden="true"> +</span></span></summary>
+            <div className="palette-picker" role="group" aria-label="Color palette">
+              <div><p className="palette-label">CHOOSE YOUR COLORS</p><p className="palette-help">Graphite by default. Choose your own accent color below.</p></div>
+              <label className="custom-color-control"><span>Choose a custom color</span><input type="color" aria-label="Custom accent color" value={customColor} onInput={event => updateCustomColor(event.target.value)} onChange={event => updateCustomColor(event.target.value)} /><span className="color-code">{customColor.toUpperCase()}</span></label>
+              {palette === "custom" && <button type="button" className="reset-palette" onClick={() => choosePalette("graphite")}>Reset to default</button>}
+            </div>
+          </details>
+          <MealCalendar key={schedule.today.slice(0, 7)} today={today} />
+          <Notifications />
+        </main>
+        <footer><a className="brand" href="#">notify<span className="brand-version">2.0</span></a><p>Less guessing. More enjoying.</p><span>Made for your everyday.</span></footer>
       </div>
     </div>
   );
+}
+
+function DailyMenu({ schedule }) {
+  const menuDate = calendarDate(schedule.date);
+  const [reload, setReload] = useState(0);
+  const [chosenMeal, setChosenMeal] = useState(null);
+  const activeMeal = chosenMeal ?? schedule.activeMeal;
+  const [state, setState] = useState({ loading: true, menu: null, error: "" });
+  useEffect(() => {
+    const controller = new AbortController();
+    async function loadMenu() {
+      try {
+        if (!import.meta.env.VITE_API1) throw new Error("The daily menu isn’t available yet. Check back soon.");
+        const response = await fetch(import.meta.env.VITE_API1, { signal: controller.signal, cache: "no-store" });
+        if (!response.ok) throw new Error("We couldn’t load the menu. Please try again later.");
+        const data = await response.json();
+        setState({ loading: false, menu: data.menu, error: "" });
+      } catch (error) {
+        if (error.name !== "AbortError") setState({ loading: false, menu: null, error: error instanceof TypeError ? "We couldn’t reach the menu service. Please try again." : error.message });
+      }
+    }
+    loadMenu();
+    return () => {
+      controller.abort();
+    };
+  }, [reload]);
+  const meal = MEALS[activeMeal];
+  return <section className="daily-section" id="daily-menu" aria-labelledby="daily-title"><div className="daily-intro"><div className="eyebrow">ON THE MENU</div><h1 id="daily-title">{schedule.upcoming ? "Tomorrow’s menu" : "Today’s menu"}</h1><p>{menuDate.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p></div><div className="daily-content"><div className="meal-tabs" aria-label="Choose a meal">{MEALS.map((item, index) => <button key={item.key} aria-pressed={index === activeMeal} onClick={() => setChosenMeal(index)} className={index === activeMeal ? "active" : ""}><Icon name={item.icon} size={17} />{item.label}</button>)}</div><div className="daily-description" aria-live="polite" aria-busy={state.loading}><span className="daily-meal-icon"><Icon name={meal.icon} size={27} /></span><div><h3>{meal.label}{schedule.upcoming ? " · Tomorrow" : ""}</h3>{state.loading ? <MenuLoader /> : <p>{state.error || state.menu?.[meal.key] || "This meal’s menu hasn’t been added yet."}</p>}{state.error && <button className="retry-menu" onClick={() => { setState({ loading: true, menu: null, error: "" }); setReload(value => value + 1); }}>Try again</button>}</div></div></div></section>;
+}
+
+function MenuLoader() {
+  return (
+    <div className="menu-loader" role="status" aria-label="Loading menu">
+      <div className="menu-skeleton" aria-hidden="true">
+        <span /><span /><span /><span />
+      </div>
+      <span className="menu-loading-caption">Fetching your menu…</span>
+    </div>
+  );
+}
+
+function MealCalendar({ today }) {
+  const month = new Date(today.getFullYear(), today.getMonth(), 1);
+  const [selectedDate, setSelectedDate] = useState(today);
+  const firstWeekday = (month.getDay() + 6) % 7;
+  const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+  const cells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+  const goToToday = () => setSelectedDate(today);
+  // Calendar UI only: use selectedDate to load your menu here when connecting the API.
+  // Keep these placeholders separate from the live daily-menu response.
+  return <section className="calendar-section" id="calendar" aria-labelledby="calendar-title"><div className="section-heading"><div><div className="eyebrow">A LITTLE PLANNING GOES A LONG WAY</div><h2 id="calendar-title">Your month, on a plate.</h2><p>Pick a day. See what’s on the menu.</p></div><span className="outline-badge"><Icon name="calendar" size={15} /> Meal planner</span></div><div className="planner-layout"><div className="calendar-card"><div className="calendar-toolbar"><h3 aria-live="polite">{month.toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</h3><div className="calendar-controls"><button className="today-button" onClick={goToToday}>Today</button></div></div><div className="calendar-grid"><div className="weekday-row">{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => <span key={day}>{day}</span>)}</div><div className="date-grid">{Array.from({ length: cells }, (_, index) => {
+    const date = new Date(month.getFullYear(), month.getMonth(), index - firstWeekday + 1);
+    if (date.getMonth() !== month.getMonth()) return <span key={dateKey(date)} className="date-cell calendar-spacer" aria-hidden="true" />;
+    const selected = dateKey(date) === dateKey(selectedDate);
+    const isToday = dateKey(date) === dateKey(today);
+    return <button key={dateKey(date)} className={`date-cell ${selected ? "selected" : ""} ${isToday ? "is-today" : ""}`} aria-label={fullDate(date)} aria-pressed={selected} aria-current={isToday ? "date" : undefined} onClick={() => setSelectedDate(date)}><span>{date.getDate()}</span>{isToday && <small>Today</small>}</button>;
+  })}</div></div><div className="calendar-legend"><span><i className="legend-selected" />Selected day</span><span><i className="legend-today" />Today</span><span className="calendar-hint">A fresh day. Four good meals.</span></div></div><aside className="selected-menu" aria-live="polite"><div className="selected-heading"><span className="eyebrow">THE DAY’S LINEUP</span><span className="preview-badge">Preview</span></div><h3>{selectedDate.toLocaleDateString("en-IN", { weekday: "long" })}<span>{selectedDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span></h3><div className="day-meals">{MEALS.map(meal => <div className={`day-meal ${meal.key}`} key={meal.key}><span className="meal-icon"><Icon name={meal.icon} /></span><div><h4>{meal.label}<span>{meal.time}</span></h4><p>Menu will appear here</p></div></div>)}</div><p className="preview-note">A preview of your daily meal planner.<br />Menus for selected dates are coming soon.</p></aside></div></section>;
+}
+
+function Notifications() {
+  const [selected, setSelected] = useState([]);
+  const [status, setStatus] = useState("");
+  const [subscribed, setSubscribed] = useState(() => Boolean(localStorage.getItem("token")));
+  const [busy, setBusy] = useState(false);
+  async function subscribe() {
+    if (!selected.length) { setStatus("Pick at least one meal to get started."); return; }
+    setBusy(true); setStatus("");
+    try {
+      const result = await Check(selected);
+      if (result === "200") { setSubscribed(true); setStatus(""); }
+      else { localStorage.removeItem("token"); setStatus(result === "403" ? "Notifications are blocked. Allow them in your browser settings to continue." : "We couldn’t activate notifications. Please try again."); }
+    } catch { localStorage.removeItem("token"); setStatus("Something went wrong. Check your connection and try again."); }
+    finally { setBusy(false); }
+  }
+  return <section className="notification-section" id="notifications" aria-labelledby="notification-title"><div className="notification-copy"><div className="eyebrow">A FRIENDLY LITTLE REMINDER</div><h2 id="notification-title">Never miss a good meal.</h2><p>Your menu, delivered right to your browser.<br />Pick the meals you’d like to hear about.</p></div><div className="notification-form">{subscribed ? <div className="subscription-success"><span><Icon name="check" size={28} /></span><h3>You’re on the list.</h3><p>Look out for notifications for your chosen meals.<br />We’ll let you know what’s cooking.</p></div> : <><span className="form-label">MAKE IT YOURS</span><div className="preference-grid">{MEALS.map(meal => <button key={meal.key} disabled={busy} aria-pressed={selected.includes(meal.key)} className={`preference ${selected.includes(meal.key) ? "chosen" : ""}`} onClick={() => setSelected(previous => previous.includes(meal.key) ? previous.filter(key => key !== meal.key) : [...previous, meal.key])}><Icon name={meal.icon} size={19} />{meal.label}<span className="meal-checkmark" aria-hidden="true">{selected.includes(meal.key) && <Icon name="check" size={12} />}</span></button>)}</div><button className="primary-button subscribe-button" disabled={busy} onClick={subscribe}>{busy ? "Activating…" : "Keep me in the loop"}<Icon name="arrow" size={18} /></button><p className="form-status" role="status">{status || "Just meal updates. No noise, we promise."}</p></>}</div></section>;
 }

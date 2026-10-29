@@ -8,12 +8,13 @@ const upload=mutler({
    dest:"temp/"
 })
 dotenv.config();
-const { Add,File,meal,Service1,Service2,Service3,Service4,MessNotAvl } = require("./Handler");
+const { Add,File,meal,Service1,Service2,Service3,Service4,MessNotAvl, Monthmenu } = require("./Handler");
 app.use(cors());
 app.use(exp.json());
 app.post("/user",Add)
 app.post("/upload",upload.single("file"),File)
 app.get("/meal",meal);
+app.get("/monthmenu",Monthmenu)
 app.get("/nomenu",MessNotAvl);
 app.use(verify);
 app.get("/s1",Service1);

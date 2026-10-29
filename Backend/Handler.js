@@ -327,6 +327,13 @@ async function MessNotAvl(req,res)
   return res.send("Menu this month? Nah bro, unavailable 💀");
 }
 
+async function Monthmenu(req,res)
+{
+   let result=await mess.find();
+
+   return res.json({menu:result});
+}
+
 
 
   
@@ -335,55 +342,22 @@ async function MessNotAvl(req,res)
    
 
 async function meal(req, res) {
-  let date = new Date().getDate();
-
-  let hour =new Date().getHours();
-  date = date + "";
-  console.log(date);
-  console.log(hour);
-
-  if (hour <= 21) {
-    if (date.length == 1) {
-      date = "0" + date;
-    }
-    try {
-      let result = await mess.findOne({
-        date: date
-      });
-      return res.status(200).json({
-        menu: result,
-        meal: "current"
-      })
-
-    } catch (e) {
-      console.log(e);
-      return res.sendStatus(500);
-    }
-  } else {
-
-    date = parseInt(date) + 1 + "";
-    if (date.length == 1) {
-      date = "0" + date;
-    }
-    try {
-      console.log(date);
-      let result = await mess.findOne({
-        date: date
-      });
-      return res.status(200).json({
-        menu: result,
-        meal: "Upcoming"
-      })
-
-    } catch (e) {
-      console.log(e);
-      return res.sendStatus(500);
-    }
-
+  try {
+    const { getMealSchedule } = await import("../shared/menuTime.mjs");
+    const schedule = getMealSchedule();
+    const result = await mess.findOne({ date: schedule.day });
+    res.set("Cache-Control", "no-store");
+    return res.status(200).json({
+      menu: result,
+      meal: schedule.upcoming ? "Upcoming" : "current",
+      menuDate: schedule.date,
+      timezone: "Asia/Kolkata"
+    });
+  } catch (error) {
+    console.error(error);
+    return res.sendStatus(500);
   }
-
 }
-
 module.exports={
     Add:Add,
     File:File,
@@ -392,9 +366,7 @@ module.exports={
     Service2:Service2,
     Service3:Service3,
     Service4:Service4,
-    MessNotAvl:MessNotAvl
+    MessNotAvl:MessNotAvl,
+    Monthmenu:Monthmenu
     
 }
-
-
-
