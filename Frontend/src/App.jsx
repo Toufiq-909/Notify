@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check } from "../ApiCall/fetch";
 import "./App.css";
 import { Monthmenu } from "../ApiCall/MenuFetch";
@@ -156,53 +156,128 @@ function MenuLoader() {
 }
 
 function MealCalendar({ today }) {
-   
-  useEffect(()=>{
-
-   let a=async ()=>{
-    let menu=localStorage.getItem("Monthmenu");
-
-    console.log(menu)
-
-    if(menu==null)
-    {
-
-        let res=await Monthmenu();
-
-        
-
-        if(res=="error")
-        {
-           //display error msg
+  // The backend keeps one month of menu; MenuFetch caches it in localStorage as "Monthmenu".
+  const [monthMenu, setMonthMenu] = useState(null);
+  const [menuStatus, setMenuStatus] = useState("loading"); // "loading" | "ready" | "error"
+  async function loadMonthMenu() {
+    setMenuStatus("loading");
+    try {
+      let stored = null;
+      try { stored = localStorage.getItem("Monthmenu"); } catch { /* Storage is optional. */ }
+      if (!stored) {
+        const result = await Monthmenu(); // fetches and saves the menu back to localStorage
+        if (result === "sucess" || result === "success") {
+          try { stored = localStorage.getItem("Monthmenu"); } catch { /* Storage is optional. */ }
         }
-        else
-        {
-          
-            // use the  localstorage and display the montly menu 
-        }
-
+      }
+      const rows = JSON.parse(stored ?? "null")?.menu;
+      const hasRows = Array.isArray(rows) && rows.length > 0;
+      setMonthMenu(hasRows ? rows : null);
+      setMenuStatus(hasRows ? "ready" : "error");
+    } catch {
+      setMonthMenu(null);
+      setMenuStatus("error");
     }
-   }
-    a();
-
-  },[]);
-
-
+  }
+  useEffect(() => { loadMonthMenu(); }, []);
   const month = new Date(today.getFullYear(), today.getMonth(), 1);
   const [selectedDate, setSelectedDate] = useState(today);
   const firstWeekday = (month.getDay() + 6) % 7;
   const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
   const cells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
   const goToToday = () => setSelectedDate(today);
-  // Calendar UI only: use selectedDate to load your menu here when connecting the API.
-  // Keep these placeholders separate from the live daily-menu response.
-  return <section className="calendar-section" id="calendar" aria-labelledby="calendar-title"><div className="section-heading"><div><div className="eyebrow">A LITTLE PLANNING GOES A LONG WAY</div><h2 id="calendar-title">Your month, on a plate.</h2><p>Pick a day. See what’s on the menu.</p></div><span className="outline-badge"><Icon name="calendar" size={15} /> Meal planner</span></div><div className="planner-layout"><div className="calendar-card"><div className="calendar-toolbar"><h3 aria-live="polite">{month.toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</h3><div className="calendar-controls"><button className="today-button" onClick={goToToday}>Today</button></div></div><div className="calendar-grid"><div className="weekday-row">{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => <span key={day}>{day}</span>)}</div><div className="date-grid">{Array.from({ length: cells }, (_, index) => {
-    const date = new Date(month.getFullYear(), month.getMonth(), index - firstWeekday + 1);
-    if (date.getMonth() !== month.getMonth()) return <span key={dateKey(date)} className="date-cell calendar-spacer" aria-hidden="true" />;
-    const selected = dateKey(date) === dateKey(selectedDate);
-    const isToday = dateKey(date) === dateKey(today);
-    return <button key={dateKey(date)} className={`date-cell ${selected ? "selected" : ""} ${isToday ? "is-today" : ""}`} aria-label={fullDate(date)} aria-pressed={selected} aria-current={isToday ? "date" : undefined} onClick={() => setSelectedDate(date)}><span>{date.getDate()}</span>{isToday && <small>Today</small>}</button>;
-  })}</div></div><div className="calendar-legend"><span><i className="legend-selected" />Selected day</span><span><i className="legend-today" />Today</span><span className="calendar-hint">A fresh day. Four good meals.</span></div></div><aside className="selected-menu" aria-live="polite"><div className="selected-heading"><span className="eyebrow">THE DAY’S LINEUP</span><span className="preview-badge">Preview</span></div><h3>{selectedDate.toLocaleDateString("en-IN", { weekday: "long" })}<span>{selectedDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span></h3><div className="day-meals">{MEALS.map(meal => <div className={`day-meal ${meal.key}`} key={meal.key}><span className="meal-icon"><Icon name={meal.icon} /></span><div><h4>{meal.label}<span>{meal.time}</span></h4><p>Menu will appear here</p></div></div>)}</div><p className="preview-note">A preview of your daily meal planner.<br />Menus for selected dates are coming soon.</p></aside></div></section>;
+  const dayMenu = monthMenu ? monthMenu.find(row => Number(row?.date) === selectedDate.getDate()) ?? null : null;
+  const [search, setSearch] = useState("");
+  const searchMatches = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!monthMenu || query.length < 2) return [];
+    return monthMenu.reduce((matches, row) => {
+      const matchedMeals = MEALS.filter(meal => (row?.[meal.key] || "").toLowerCase().includes(query));
+      if (matchedMeals.length) matches.push({ row, meals: matchedMeals.map(meal => meal.label) });
+      return matches;
+    }, []);
+  }, [monthMenu, search]);
+  const searchActive = menuStatus === "ready" && search.trim().length > 1;
+  return (
+    <section className="calendar-section" id="calendar" aria-labelledby="calendar-title">
+      <div className="section-heading">
+        <div>
+          <div className="eyebrow">A LITTLE PLANNING GOES A LONG WAY</div>
+          <h2 id="calendar-title">Your month, on a plate.</h2>
+          <p>Pick a day. See what’s on the menu.</p>
+        </div>
+        <span className="outline-badge"><Icon name="calendar" size={15} /> Meal planner</span>
+      </div>
+      <div className="planner-layout">
+        <div className="calendar-card">
+          <div className="calendar-toolbar">
+            <h3 aria-live="polite">{month.toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</h3>
+            <div className="calendar-controls"><button className="today-button" onClick={goToToday}>Today</button></div>
+          </div>
+          <div className="calendar-search">
+            <input type="search" placeholder="Find a dish — try “paneer”" aria-label="Search this month’s menu by dish name" value={search} disabled={menuStatus !== "ready"} onChange={event => setSearch(event.target.value)} />
+          </div>
+          <div className="calendar-grid">
+            <div className="weekday-row">{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => <span key={day}>{day}</span>)}</div>
+            <div className="date-grid">{Array.from({ length: cells }, (_, index) => {
+              const date = new Date(month.getFullYear(), month.getMonth(), index - firstWeekday + 1);
+              if (date.getMonth() !== month.getMonth()) return <span key={dateKey(date)} className="date-cell calendar-spacer" aria-hidden="true" />;
+              const selected = dateKey(date) === dateKey(selectedDate);
+              const isToday = dateKey(date) === dateKey(today);
+              return <button key={dateKey(date)} className={`date-cell ${selected ? "selected" : ""} ${isToday ? "is-today" : ""}`} aria-label={fullDate(date)} aria-pressed={selected} aria-current={isToday ? "date" : undefined} onClick={() => setSelectedDate(date)}><span>{date.getDate()}</span>{isToday && <small>Today</small>}</button>;
+            })}</div>
+          </div>
+          {searchActive && (
+            <div className="search-results" aria-live="polite">
+              {searchMatches.length === 0
+                ? <p className="search-empty">No dish named “{search.trim()}” is on this month’s menu.</p>
+                : searchMatches.map(match => {
+                  const matchDate = new Date(month.getFullYear(), month.getMonth(), Number(match.row.date));
+                  const active = dateKey(matchDate) === dateKey(selectedDate);
+                  return (
+                    <button key={Number(match.row.date)} className={active ? "active" : ""} onClick={() => setSelectedDate(matchDate)}>
+                      <span className="search-day">{matchDate.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</span>
+                      <span className="search-meals">{match.meals.join(" · ")}</span>
+                      <Icon name="arrow" size={14} />
+                    </button>
+                  );
+                })}
+            </div>
+          )}
+          <div className="calendar-legend">
+            <span><i className="legend-selected" />Selected day</span>
+            <span><i className="legend-today" />Today</span>
+            <span className="calendar-hint">A fresh day. Four good meals.</span>
+          </div>
+        </div>
+        <aside className="selected-menu" aria-live="polite" aria-busy={menuStatus === "loading"}>
+          <div className="selected-heading">
+            <span className="eyebrow">THE DAY’S LINEUP</span>
+            <span className="preview-badge">{menuStatus === "loading" ? "Updating" : menuStatus === "error" ? "Unavailable" : "Saved on this device"}</span>
+          </div>
+          <h3>{selectedDate.toLocaleDateString("en-IN", { weekday: "long" })}<span>{selectedDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span></h3>
+          <div className="day-meals">
+            {menuStatus === "loading"
+              ? <MenuLoader />
+              : menuStatus === "error"
+                ? <div className="calendar-menu-note"><p>The month menu isn’t available right now.<br />Please try again.</p><button className="retry-menu" onClick={loadMonthMenu}>Try again</button></div>
+                : !dayMenu
+                  ? <div className="calendar-menu-note"><p>No menu was uploaded for this day.<br />Pick another date or check back after the next menu update.</p></div>
+                  : MEALS.map(meal => (
+                    <div className={`day-meal ${meal.key}`} key={meal.key}>
+                      <span className="meal-icon"><Icon name={meal.icon} /></span>
+                      <div>
+                        <h4>{meal.label}<span>{meal.time}</span></h4>
+                        <p>{dayMenu[meal.key] || "Not on the menu yet."}</p>
+                      </div>
+                    </div>
+                  ))}
+          </div>
+          {menuStatus === "ready" && <p className="preview-note">Pick any day to see its full day’s meals.</p>}
+        </aside>
+      </div>
+    </section>
+  );
 }
 
 function Notifications() {

@@ -50,7 +50,7 @@ h2 { font-family: var(--heading); font-size: 30px; font-weight: 500; letter-spac
 .section-heading p { font-size: 12px; color: var(--muted); }
 .outline-badge { display: flex; align-items: center; gap: 7px; font-size: 10px; padding: 9px 13px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); }
 .planner-layout { display: grid; grid-template-columns: 1.65fr 1fr; gap: 24px; }
-.calendar-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.calendar-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; align-self: start; padding-bottom: 22px; }
 .calendar-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 25px; }
 .calendar-toolbar h3 { font-size: 17px; font-weight: 600; letter-spacing: -.5px; }
 .calendar-controls { display: flex; align-items: center; gap: 6px; }
@@ -73,7 +73,7 @@ h2 { font-family: var(--heading); font-size: 30px; font-weight: 500; letter-spac
 .calendar-legend i { width: 7px; height: 7px; border-radius: 2px; }
 .legend-selected { background: var(--accent); }.legend-today { border: 1px solid var(--accent); }
 .calendar-hint { margin-left: auto; }
-.selected-menu { padding: 25px; background: var(--soft); border: 1px solid var(--line); border-radius: var(--radius); }
+.selected-menu { padding: 25px; background: var(--soft); border: 1px solid var(--line); border-radius: var(--radius); position: sticky; top: 24px; align-self: start; }
 .selected-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .preview-badge { font-size: 9px; padding: 4px 8px; border: 1px solid var(--line); color: var(--muted); border-radius: 4px; }
 .selected-menu>h3 { font-family: var(--heading); font-size: 26px; font-weight: 500; letter-spacing: -.6px; margin-top: 16px; }
@@ -244,6 +244,26 @@ html { scroll-padding-top: 24px; }
   .preference { min-height:48px; font-size:13px; }.subscribe-button { min-height:48px; font-size:13px; }.form-status { font-size:12px; }
 }
 .retry-menu { margin-top:14px; min-height:44px; padding:10px 18px; background:var(--accent); color:var(--on-accent); font-size:13px; }
+
+/* Calendar: dish search and the day-panel states. */
+.calendar-menu-note p { font-size:13px; line-height:1.8; color:var(--muted); overflow-wrap:anywhere; }
+.calendar-search { padding:0 22px 12px; }
+.calendar-search input { width:100%; min-height:44px; padding:10px 14px; background:var(--soft); border:1px solid var(--line); border-radius:min(var(--radius),8px); color:var(--ink); font-size:13px; }
+.calendar-search input::placeholder { color:var(--muted); }
+.calendar-search input:focus-visible { border-color:var(--accent); background:var(--surface); outline:none; }
+.calendar-search input:disabled { opacity:.6; cursor:not-allowed; }
+.search-results { display:grid; gap:6px; padding:2px 22px 14px; max-height:320px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+.search-results::-webkit-scrollbar { width:8px; }
+.search-results::-webkit-scrollbar-thumb { background:var(--line); border-radius:4px; }
+.search-results::-webkit-scrollbar-track { background:transparent; }
+.search-results>button { display:flex; align-items:center; gap:12px; padding:11px 13px; background:var(--surface); border:1px solid var(--line); text-align:left; font-size:12px; }
+.search-results>button svg { display:block; margin-left:auto; flex-shrink:0; color:var(--muted); }
+.search-results>button:hover, .search-results>button.active { border-color:var(--accent); }
+.search-results>button.active svg { color:var(--accent); }
+.search-day { font-weight:600; min-width:104px; flex-shrink:0; }
+.search-meals { color:var(--muted); min-width:0; }
+.search-empty { font-size:12px; line-height:1.7; color:var(--muted); padding:6px 0; }
+@media(max-width:800px) { .selected-menu { position:static; max-height:none; overflow:visible; } }
 
 /* Isolate the check icon from DaisyUI's .checkbox component styles. */
 .meal-checkmark { display:inline-flex; align-items:center; justify-content:center; flex:0 0 18px; width:18px; height:18px; padding:0; line-height:0; }
