@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check } from "../ApiCall/fetch";
 import "./App.css";
+import { Monthmenu } from "../ApiCall/MenuFetch";
 import { customPalette } from "./palette";
 import { getMealSchedule } from "../../shared/menuTime.mjs";
 const calendarDate = (iso) => { const [year, month, day] = iso.split("-").map(Number); return new Date(year, month - 1, day); };
@@ -155,6 +156,38 @@ function MenuLoader() {
 }
 
 function MealCalendar({ today }) {
+   
+  useEffect(()=>{
+
+   let a=async ()=>{
+    let menu=localStorage.getItem("Monthmenu");
+
+    console.log(menu)
+
+    if(menu==null)
+    {
+
+        let res=await Monthmenu();
+
+        
+
+        if(res=="error")
+        {
+           //display error msg
+        }
+        else
+        {
+          
+            // use the  localstorage and display the montly menu 
+        }
+
+    }
+   }
+    a();
+
+  },[]);
+
+
   const month = new Date(today.getFullYear(), today.getMonth(), 1);
   const [selectedDate, setSelectedDate] = useState(today);
   const firstWeekday = (month.getDay() + 6) % 7;

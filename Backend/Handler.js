@@ -331,15 +331,13 @@ async function Monthmenu(req,res)
 {
    let result=await mess.find();
 
-   return res.json({menu:result});
+   if(result.length==0)
+   {
+      return res.json({msg:"error"}).status(500);
+   }
+
+   return res.json({msg:"success",menu:result}).status(200);
 }
-
-
-
-  
-
-                      
-   
 
 async function meal(req, res) {
   try {
