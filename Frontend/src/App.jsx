@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check } from "../ApiCall/fetch";
 import "./App.css";
 import { Monthmenu } from "../ApiCall/MenuFetch";
@@ -31,7 +31,44 @@ function Icon({ name, size = 22 }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name] || paths.bowl}</svg>;
 }
 
+// Both menu views share the same cached monthly data and one in-flight request.
+let pendingMonthMenu = null;
+function readMonthMenu() {
+  try {
+    const rows = JSON.parse(localStorage.getItem("Monthmenu") ?? "null")?.menu;
+    return Array.isArray(rows) && rows.length > 0 ? rows : null;
+  } catch { return null; }
+}
+
+function useMonthMenu() {
+  const [state, setState] = useState(() => {
+    const rows = readMonthMenu();
+    return { monthMenu: rows, menuStatus: rows ? "ready" : "loading" };
+  });
+  const loadMonthMenu = useCallback(async () => {
+    const cached = readMonthMenu();
+    if (cached) {
+      setState({ monthMenu: cached, menuStatus: "ready" });
+      return;
+    }
+    setState({ monthMenu: null, menuStatus: "loading" });
+    try {
+      if (!pendingMonthMenu) {
+        pendingMonthMenu = Monthmenu().finally(() => { pendingMonthMenu = null; });
+      }
+      await pendingMonthMenu;
+      const rows = readMonthMenu();
+      setState({ monthMenu: rows, menuStatus: rows ? "ready" : "error" });
+    } catch {
+      setState({ monthMenu: null, menuStatus: "error" });
+    }
+  }, []);
+  useEffect(() => { loadMonthMenu(); }, [loadMonthMenu]);
+  return { ...state, loadMonthMenu };
+}
+
 export default function App() {
+  const monthlyMenu = useMonthMenu();
   const [palette, setPalette] = useState(() => {
     try {
       const saved = localStorage.getItem("notify-palette");
@@ -97,7 +134,7 @@ export default function App() {
           </div>
         </header>
         <main>
-          <DailyMenu key={schedule.date + schedule.upcoming} schedule={schedule} />
+          <DailyMenu key={schedule.date + schedule.upcoming} schedule={schedule} {...monthlyMenu} />
           <div className="quick-links"><a href="#calendar"><Icon name="calendar" size={18} />Browse calendar<Icon name="arrow" size={16} /></a><a href="#notifications"><Icon name="bell" size={18} />Meal reminders<Icon name="arrow" size={16} /></a></div>
           <details className="appearance-panel">
             <summary><span><Icon name="sun" size={18} />Appearance</span><span className="appearance-current">{palette === "custom" ? "Custom color" : "Graphite"}<span aria-hidden="true"> +</span></span></summary>
@@ -107,7 +144,7 @@ export default function App() {
               {palette === "custom" && <button type="button" className="reset-palette" onClick={() => choosePalette("graphite")}>Reset to default</button>}
             </div>
           </details>
-          <MealCalendar key={schedule.today.slice(0, 7)} today={today} />
+          <MealCalendar key={schedule.today.slice(0, 7)} today={today} {...monthlyMenu} />
           <Notifications />
         </main>
         <footer><a className="brand" href="#">notify<span className="brand-version">2.0</span></a><p>Less guessing. More enjoying.</p><span>Made for your everyday.</span></footer>
@@ -116,32 +153,17 @@ export default function App() {
   );
 }
 
-function DailyMenu({ schedule }) {
+function DailyMenu({ schedule, monthMenu, menuStatus, loadMonthMenu }) {
   const menuDate = calendarDate(schedule.date);
-  const [reload, setReload] = useState(0);
   const [chosenMeal, setChosenMeal] = useState(null);
   const activeMeal = chosenMeal ?? schedule.activeMeal;
-  const [state, setState] = useState({ loading: true, menu: null, error: "" });
-  useEffect(() => {
-    const controller = new AbortController();
-    async function loadMenu() {
-      try {
-        if (!import.meta.env.VITE_API1) throw new Error("The daily menu isn’t available yet. Check back soon.");
-        const response = await fetch(import.meta.env.VITE_API1, { signal: controller.signal, cache: "no-store" });
-        if (!response.ok) throw new Error("We couldn’t load the menu. Please try again later.");
-        const data = await response.json();
-        setState({ loading: false, menu: data.menu, error: "" });
-      } catch (error) {
-        if (error.name !== "AbortError") setState({ loading: false, menu: null, error: error instanceof TypeError ? "We couldn’t reach the menu service. Please try again." : error.message });
-      }
-    }
-    loadMenu();
-    return () => {
-      controller.abort();
-    };
-  }, [reload]);
+  const state = {
+    loading: menuStatus === "loading",
+    menu: monthMenu?.find(row => Number(row?.date) === Number(schedule.day)) ?? null,
+    error: menuStatus === "error" ? "The month menu isn’t available right now. Please try again." : "",
+  };
   const meal = MEALS[activeMeal];
-  return <section className="daily-section" id="daily-menu" aria-labelledby="daily-title"><div className="daily-intro"><div className="eyebrow">ON THE MENU</div><h1 id="daily-title">{schedule.upcoming ? "Tomorrow’s menu" : "Today’s menu"}</h1><p>{menuDate.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p></div><div className="daily-content"><div className="meal-tabs" aria-label="Choose a meal">{MEALS.map((item, index) => <button key={item.key} aria-pressed={index === activeMeal} onClick={() => setChosenMeal(index)} className={index === activeMeal ? "active" : ""}><Icon name={item.icon} size={17} />{item.label}</button>)}</div><div className="daily-description" aria-live="polite" aria-busy={state.loading}><span className="daily-meal-icon"><Icon name={meal.icon} size={27} /></span><div><h3>{meal.label}{schedule.upcoming ? " · Tomorrow" : ""}</h3>{state.loading ? <MenuLoader /> : <p>{state.error || state.menu?.[meal.key] || "This meal’s menu hasn’t been added yet."}</p>}{state.error && <button className="retry-menu" onClick={() => { setState({ loading: true, menu: null, error: "" }); setReload(value => value + 1); }}>Try again</button>}</div></div></div></section>;
+  return <section className="daily-section" id="daily-menu" aria-labelledby="daily-title"><div className="daily-intro"><div className="eyebrow">ON THE MENU</div><h1 id="daily-title">{schedule.upcoming ? "Tomorrow’s menu" : "Today’s menu"}</h1><p>{menuDate.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p></div><div className="daily-content"><div className="meal-tabs" aria-label="Choose a meal">{MEALS.map((item, index) => <button key={item.key} aria-pressed={index === activeMeal} onClick={() => setChosenMeal(index)} className={index === activeMeal ? "active" : ""}><Icon name={item.icon} size={17} />{item.label}</button>)}</div><div className="daily-description" aria-live="polite" aria-busy={state.loading}><span className="daily-meal-icon"><Icon name={meal.icon} size={27} /></span><div><h3>{meal.label}{schedule.upcoming ? " · Tomorrow" : ""}</h3>{state.loading ? <MenuLoader /> : <p>{state.error || state.menu?.[meal.key] || "This meal’s menu hasn’t been added yet."}</p>}{state.error && <button className="retry-menu" onClick={loadMonthMenu}>Try again</button>}</div></div></div></section>;
 }
 
 function MenuLoader() {
@@ -155,31 +177,7 @@ function MenuLoader() {
   );
 }
 
-function MealCalendar({ today }) {
-  // The backend keeps one month of menu; MenuFetch caches it in localStorage as "Monthmenu".
-  const [monthMenu, setMonthMenu] = useState(null);
-  const [menuStatus, setMenuStatus] = useState("loading"); // "loading" | "ready" | "error"
-  async function loadMonthMenu() {
-    setMenuStatus("loading");
-    try {
-      let stored = null;
-      try { stored = localStorage.getItem("Monthmenu"); } catch { /* Storage is optional. */ }
-      if (!stored) {
-        const result = await Monthmenu(); // fetches and saves the menu back to localStorage
-        if (result === "sucess" || result === "success") {
-          try { stored = localStorage.getItem("Monthmenu"); } catch { /* Storage is optional. */ }
-        }
-      }
-      const rows = JSON.parse(stored ?? "null")?.menu;
-      const hasRows = Array.isArray(rows) && rows.length > 0;
-      setMonthMenu(hasRows ? rows : null);
-      setMenuStatus(hasRows ? "ready" : "error");
-    } catch {
-      setMonthMenu(null);
-      setMenuStatus("error");
-    }
-  }
-  useEffect(() => { loadMonthMenu(); }, []);
+function MealCalendar({ today, monthMenu, menuStatus, loadMonthMenu }) {
   const month = new Date(today.getFullYear(), today.getMonth(), 1);
   const [selectedDate, setSelectedDate] = useState(today);
   const firstWeekday = (month.getDay() + 6) % 7;
