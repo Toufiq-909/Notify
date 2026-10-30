@@ -10,9 +10,17 @@ let userschema=new mon.Schema({
     token:String,
     meal:[String]
 })
+
+let LoginSchema=new mon.Schema({
+    name:String,
+    password:String
+});
+
+let loginmodel=mon.model("Login",LoginSchema);
 let usermodel=mon.model("users",userschema);
 let messmodel=mon.model("menu",messschema);
 module.exports={
     mess:messmodel,
-    user:usermodel
+    user:usermodel,
+    loginmodel:loginmodel
 }

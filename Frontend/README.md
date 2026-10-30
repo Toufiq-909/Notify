@@ -1,5 +1,11 @@
 # Notify 2.0 frontend
 
+## Account access
+
+Set `VITE_API2` to the backend origin (for example `http://localhost:3000`). Login and signup send `{ name, password }` to `/login` and `/signup`. The backend requires its `mon` database connection and `secret` JWT signing secret.
+
+Successful signup signs the user in immediately. The JWT is saved in `localStorage` under `notify-auth`, restored on refresh, and cleared on logout or after the backend's five-minute expiry. Passwords are never stored. The notification token remains separate in `localStorage.token`. Account state does not grant access to the backend's administrative notification service routes.
+
 ## Offline caching
 
 There are two independent stores:

@@ -4,6 +4,7 @@ import "./App.css";
 import { Monthmenu } from "../ApiCall/MenuFetch";
 import { customPalette } from "./palette";
 import { getMealSchedule } from "../../shared/menuTime.mjs";
+import LoginDialog from "./LoginDialog";
 const calendarDate = (iso) => { const [year, month, day] = iso.split("-").map(Number); return new Date(year, month - 1, day); };
 
 const MEALS = [
@@ -145,6 +146,7 @@ export default function App() {
           <a className="brand" href="#" aria-label="Notify 2.0 home"><span className="brand-icon"><Icon name="bowl" size={24} /></span>notify<span className="brand-version">2.0</span></a>
           <nav aria-label="Main navigation"><a href="#daily-menu">Daily menu</a><a href="#calendar">Meal calendar</a></nav>
           <div className="header-controls">
+            <LoginDialog />
             <button className="theme-toggle" type="button" aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"} title={darkMode ? "Switch to light mode" : "Switch to dark mode"} onClick={() => setDarkMode(previous => !previous)}>
               <Icon name={darkMode ? "moon" : "sun"} size={18} />
             </button>
