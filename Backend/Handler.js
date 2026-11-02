@@ -336,7 +336,9 @@ async function Monthmenu(req,res)
       return res.json({msg:"error"}).status(500);
    }
 
-   return res.json({msg:"success",menu:result}).status(200);
+   const month=new Date().getMonth();
+
+   return res.json({msg:"success",month:month,menu:result}).status(200);
 }
 
 async function meal(req, res) {
