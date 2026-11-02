@@ -40,13 +40,24 @@ async function readMonthMenu() {
    
     let month=JSON.parse(localStorage.getItem("Monthmenu") ?? "null")?.month;
    
+    console.log(month);
+
     if(month==undefined || month!=new Date().getMonth())
     {
+
+      consol.log("Are we exec");
+
        let resp=await Monthmenu();
+
+       console.log(resp.status);
+
+       conosole.log(localStorage.getItem("Monthmenu"));
 
        if(resp.status==200)
        {
         rows=JSON.parse(localStorage.getItem("Monthmenu") ?? "null")?.menu;
+
+        
 
        }
        else
