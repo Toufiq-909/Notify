@@ -34,20 +34,40 @@ function Icon({ name, size = 22 }) {
 
 // Both menu views share the same cached monthly data and one in-flight request.
 let pendingMonthMenu = null;
-function readMonthMenu() {
+async function readMonthMenu() {
   try {
-    const rows = JSON.parse(localStorage.getItem("Monthmenu") ?? "null")?.menu;
+    let rows = JSON.parse(localStorage.getItem("Monthmenu") ?? "null")?.menu;
+   
+    let month=JSON.parse(localStorage.getItem("Monthmenu") ?? "null")?.month;
+   
+    if(month==undefined || month!=new Date().getMonth())
+    {
+       let resp=await Monthmenu();
+
+       if(resp.status==200)
+       {
+        rows=JSON.parse(localStorage.getItem("Monthmenu") ?? "null")?.menu;
+
+       }
+       else
+       {
+        return null;
+       }
+    }
+    
+
+    
     return Array.isArray(rows) && rows.length > 0 ? rows : null;
   } catch { return null; }
 }
 
 function useMonthMenu() {
-  const [state, setState] = useState(() => {
-    const rows = readMonthMenu();
-    return { monthMenu: rows, menuStatus: rows ? "ready" : "loading" };
-  });
+ const [state, setState] = useState({ monthMenu: null, menuStatus: "loading" });
+
   const loadMonthMenu = useCallback(async () => {
-    const cached = readMonthMenu();
+    let cached = await readMonthMenu();
+
+   
     if (cached) {
       setState({ monthMenu: cached, menuStatus: "ready" });
       return;
@@ -62,7 +82,7 @@ function useMonthMenu() {
         pendingMonthMenu = Monthmenu().finally(() => { pendingMonthMenu = null; });
       }
       await pendingMonthMenu;
-      const rows = readMonthMenu();
+      const rows = await readMonthMenu();
       setState({ monthMenu: rows, menuStatus: rows ? "ready" : "error" });
     } catch {
       setState({ monthMenu: null, menuStatus: "error" });
